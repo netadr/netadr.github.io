@@ -16,7 +16,7 @@ This article provides a very good overview of why Equation Group can't be simply
 Like many others have pointed out and as this article mentions, WikiLeaks's Vault7 dump includes a Confluence page titled [What did Equation do wrong, and how can we avoid doing the same?](https://wikileaks.org/ciav7p1/cms/page_14588809.html).
 
 The page includes a discussion by members of CIA's Center for Cyber Intelligence about how they can avoid making the mistakes Equation Group did 
-that lead to Kaspersky being able to tie a significant amount of their Windows toolkit together.
+that lead to Kaspersky being able to tie a significant amount of Equation's Windows toolkit together.
 
 One highlight of this discussion is a comment that indicates that Equation Group refers not to a single group but to a collection 
 of tools used *both* by NSA's TAO and CIA's CCI (known to the threat intelligence community as the Lamberts).
