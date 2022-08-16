@@ -2,6 +2,7 @@
 title = "On Equation Group Attribution"
 date = 2022-08-15
 description = "Adding context to the relationship between Equation Group and other threat actors"
+tags = ["malware", "threat-intelligence"]
 +++
 
 *This article and the mentioned article both cite leaked classified documents, if you have an active security clearance beware.*
