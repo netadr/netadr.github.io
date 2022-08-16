@@ -177,9 +177,9 @@ All three actors that have been mentioned here (Equation, Lamberts, and Slingsho
 
 |              | Equation              | Lamberts  | Slingshot |
 |--------------|-----------------------|-----------|-----------|
-| ElbyCDIO.sys | [KillSuit/JustVisiting](https://research.checkpoint.com/2021/a-deep-dive-into-doublefeature-equation-groups-post-exploitation-dashboard/) | ?         | [Loader](https://media.kasperskycontenthub.com/wp-content/uploads/sites/43/2018/03/09133534/The-Slingshot-APT_report_ENG_final.pdf)    |
-| Sandra.sys   | ?                     | [Archangel](https://securelist.com/unraveling-the-lamberts-toolkit/77990/) | [Loader](https://media.kasperskycontenthub.com/wp-content/uploads/sites/43/2018/03/09133534/The-Slingshot-APT_report_ENG_final.pdf)    |
-| Speedfan.sys | ?                     | [Archangel](https://ti.qianxin.com/blog/articles/network-weapons-of-cia/) | [Loader](https://media.kasperskycontenthub.com/wp-content/uploads/sites/43/2018/03/09133534/The-Slingshot-APT_report_ENG_final.pdf)    |
+| ElbyCDIO.sys | [KillSuit/JustVisiting (GrayFish)](https://research.checkpoint.com/2021/a-deep-dive-into-doublefeature-equation-groups-post-exploitation-dashboard/) | ?         | [Slingshot](https://media.kasperskycontenthub.com/wp-content/uploads/sites/43/2018/03/09133534/The-Slingshot-APT_report_ENG_final.pdf)    |
+| Sandra.sys   | ?                     | [White Lambert](https://securelist.com/unraveling-the-lamberts-toolkit/77990/) | [Slingshot](https://media.kasperskycontenthub.com/wp-content/uploads/sites/43/2018/03/09133534/The-Slingshot-APT_report_ENG_final.pdf)    |
+| Speedfan.sys | ?                     | [White Lambert](https://ti.qianxin.com/blog/articles/network-weapons-of-cia/) | [Slingshot](https://media.kasperskycontenthub.com/wp-content/uploads/sites/43/2018/03/09133534/The-Slingshot-APT_report_ENG_final.pdf)    |
 
 The about table provides an overview of overlaps between the drivers used by the three different actors. 
 
