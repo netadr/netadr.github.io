@@ -147,7 +147,7 @@ Slingshot is a fascinating threat actor whose toolkit included a complex kernel 
 Shortly after Kaspersky lifted the curtain on Slingshot, CyberScoop [reported](https://www.cyberscoop.com/kaspersky-slingshot-isis-operation-socom-five-eyes/) that Slingshot 
 was an effort by Joint Special Operations Command in the US to collect intelligence on al-Qaeda and ISIS members in developing countries.
 
-One detail that has bene [pointed out](https://twitter.com/cyb3rops/status/972433515240349696) by other professionals in the industry is that a Slingshot tool DLL 
+One detail that has bene [pointed out](https://twitter.com/cyb3rops/status/972433515240349696) by other professionals in the industry is that a Slingshot tool [DLL](https://www.virustotal.com/gui/file/fa513c65cded25a7992e2b0ab03c5dd5c6d0fc2282cd64a1e11a387a3341ce18) 
 exports a symbol by the name `dll_u`, which is a [name](https://github.com/misterch0c/shadowbroker/blob/master/windows/storage/start_pcdll.mof#L36)
 [some](https://github.com/misterch0c/shadowbroker/blob/master/windows/Resources/GROK/PyScripts/grok_x64.py#L40)
 [Equation](https://github.com/misterch0c/shadowbroker/blob/master/windows/Resources/StLa/PyScripts/Strangeland.py#L39) 
