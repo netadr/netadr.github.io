@@ -1,0 +1,18 @@
+base_url = "https://netadr.github.io"
+compile_sass = true
+build_search_index = false
+theme = "dose"
+
+taxonomies = [
+    {name = "tags"},
+]
+
+[markdown]
+highlight_code = true
+
+[extra]
+social_media = [
+    {name = "GitHub", url = "https://github.com/netadr"},
+    {name = "Twitter", url = "https://twitter.com/@netadr_t"},
+    {name = "Discord", url = "https://discord.com/users/307997003969855488"}
+]
