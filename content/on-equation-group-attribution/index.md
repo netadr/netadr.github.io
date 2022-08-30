@@ -153,6 +153,8 @@ exports a symbol by the name `dll_u`, which is a [name](https://github.com/miste
 [Equation](https://github.com/misterch0c/shadowbroker/blob/master/windows/Resources/StLa/PyScripts/Strangeland.py#L39) 
 Group tools have used.
 
+*Please note the rest of this section is almost entirely based on speculation. Despite this fact, I still wanted to include this part because I've never seen the potential connections made elsewhere publicly.*
+
 Looking back at [one](https://s3.documentcloud.org/documents/3031644/FOXACID-Server-SOP-Redacted.pdf) of the Snowden documents describing a server software used by TAO to throw web browser exploits, there could be a reason for this:
 
 ![Excerpt from FOXACID-Server-SOP-Redacted.pdf mentioning FerretCannon in the context of JSOC/CIA tools](foxacid_ferretcannon_listing.png)
