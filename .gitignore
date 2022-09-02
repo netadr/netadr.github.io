@@ -25,3 +25,6 @@ $RECYCLE.BIN/
 
 # Zola public
 /public 
+
+# In-progess articles
+/content/in-progress*
