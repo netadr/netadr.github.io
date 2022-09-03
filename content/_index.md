@@ -1,3 +1,3 @@
 +++
-sort_by = "date"
 +++
+A student with an interest in reverse engineering, windows internals, threat intelligence, game modding...
