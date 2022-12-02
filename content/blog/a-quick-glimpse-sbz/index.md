@@ -182,7 +182,7 @@ accessible via the `DiskStore` API.
 
 Each module is an ELF shared object file with at least one named export named `ofn`.
 
-Modules also import named symbols for the main binary - certain external symbols shared the same hashed
+Modules also import named symbols for the main binary - certain external symbols share the same hashed
 names in the modules as the functions in the implant.  
 
 Some notable modules are listed here:
