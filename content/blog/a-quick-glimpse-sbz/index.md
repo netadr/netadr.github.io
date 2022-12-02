@@ -1,0 +1,232 @@
++++
+title = "A quick glimpse at \"SBZ\""
+date = 2022-12-01
+description = "Brief overview of a boutique malware sample"
+tags = ["malware", "reverse-engineering"]
++++
+
+## Introduction
+
+Two months ago, a tweet [^1] was mentioned in passing within GReAT's APT Trends Q2 2022 report. [^2] 
+
+This tweet includes a hash for an ELF binary [^3]
+compiled for Solaris on the SPARC architecture. 
+
+| Name | MD5 | Size | Extra info |
+| ---- | --- | ---- | ---------- | 
+| 5 | f4df56203a37706c9e224f29b960dc21 | 1091417 | Submitted by CN submitter to VirusTotal on June 6th, 2018. |
+
+*This is far from a complete analysis of the binary. This post serves as a general overview, and to hopefully encourage further research.*
+
+## Analysis
+
+While triaging the binary, its size of over 1MB stuck out.
+
+Looking at Ghidra's memory map, there is an unallocated section present in the binary:
+
+![Screenshot of Ghidra showing strange unallocated section](sbz_strange_segment.png)
+
+The unallocated section is 731KB in size, which is a majority of the binary's size.
+
+In addition, the binary has a Shannon entropy value of 7.703, indicating the presence of
+encrypted or compressed data.
+
+The binary also has several named symbols, albeit several appear to have names
+derived from hashing the original function names.
+
+### API Providers
+
+```c
+undefined4 acquire_crc32_api(int param_1,undefined4 param_2)
+{
+  undefined4 uVar1;
+  
+                    /* Crc32ref interface */
+  uVar1 = (**(code **)(param_1 + 0x1c))(param_2,0x1c16f80,2,0,&DAT_00077890,&DAT_00077894);
+  return uVar1;
+}
+```
+
+Constructs such as these are common in the binary's code. 
+
+The second parameter of the indirect function call represents an interface or API identifier.
+
+In the `.rodata` segment of the binary, there are structures that appear to be descriptors for the various available APIs:
+
+![Screenshot of Ghidra showing an example of an API descriptor](sbz_api_descriptor.png)
+
+The `interfaceId` field indicates the unique identifier of the API and the `implementId` field appears to identify the implementor.
+
+`funcTable` fields point to function tables usable by API consumers.  
+
+In cases where the `interfaceId` is the same but the `implementId` is different between two API descriptors, the layout of the function
+tables pointed to by `funcTable` matches.  
+
+This approximates the functionality of a virtual table, although the binary itself appears to have been written in C.
+
+`unk1` and `unk2` have been empty in all cases I've observed, `unk3` is always `20 20 00 00`, and `unknownId` is always `0x1c10007`.
+
+`registerRoutine` and `deregisterRoutine` appear to point to functions that register and deregister the API, respectively.
+
+As was mentioned in Kaspersky's APT Trends Q2 2022 report, [^2] this sample appears to share API constants with tooling from the Shadow Brokers leak.
+
+After some quick searching, I agreed with their conclusion:
+
+```xml
+<Module id='14' name='Crc32ref'>
+
+    <Interfaces>
+		<Interface id='0x01c16f80' provider='0x04010001'/>
+    </Interfaces>
+    ...
+</Module>
+```
+[^4]
+
+Using the `interfaceId` from my example above, it can be seen that XML metadata present in the Shadow Brokers leak describes a module 
+with the name "Crc32ref" with the exact same ID value as the example present in our binary. 
+
+Indeed, one of the relevant binaries [^5] from the Shadow Brokers leaks appears to contain the same type of API descriptors:
+
+![Screenshot of Ghidra showing an example of an API descriptor in a binary from the Shadow Brokers leak](dsz_api_descriptor.png)
+
+### Logging
+
+Advanced attackers that are maintaing long-term operations at scale 
+may find themselves desiring a way to get diagnostics from implants in the field. 
+
+This sample does not disappoint, extensively logging many steps of its own operation. 
+
+Log invocations look like so:
+
+```c
+/* M[Sbz %d.%d.%d.%d (Lla %d.%d)] */
+log(0x5966aefb,0x80,0,&DAT_0005fea0,2,6,1,0,4,2);
+```
+
+The first parameter is likely a module identifier, and the second parameter is a log level.
+
+The third parameter is always zero, while the fourth parameter is a obfuscated format string that is decoded 
+by a custom XOR-based algorithm. The rest are variadic arguments that are formatted according to the decoded format string. 
+
+One of the first things logged by the implant during its execution is its version: `Sbz 2.6.1.0 (Lla 4.2)`.
+
+A list of all decrypted log format strings and other obfuscated strings can be found here [^6].
+
+### Loader
+
+A dynamic module loading system is present within the implant. 
+
+The loader uses a technique resembling manual mapping on Windows, where binaries are 
+mapped, fixed up, and executed entirely in-memory without touching disk. 
+
+The loader has the capability to load binaries from a custom virtual filesystem - referred to in log messages as `DiskStore`:
+
+```c
+if (_DAT_00077918 == 0) {
+                  /* Store interface */
+  iVar3 = (**(code **)(_DAT_00077910 + 0x1c))
+                    (_DAT_00077fbc,0x1c16fa1,2,0,&DAT_00077918,&g_vfs_func_table_ptr);
+  if (iVar3 != 0) {
+    g_vfs_func_table_ptr = (vfsFuncTable *)0x0;
+    _DAT_00077918 = 0;
+LAB_00033898:
+                  /* M[doLoaderLoad: can't acquire disk store api] */
+    log(0x4c2d642d,0xc0,0,&DAT_0005ee98);
+    puVar2[5] = 0x17;
+    *(undefined *)((int)puVar2 + 0x12) = 0xc;
+    return 0x17;
+  }
+  if (_DAT_00077918 == 0) goto LAB_00033898;
+}
+iVar3 = (*(code *)g_vfs_func_table_ptr->open_handle)(0x1c10003,0x1012002,uVar7);
+sStack680.st_blksize = (*(code *)g_vfs_func_table_ptr->get_size)(iVar3);
+if (sStack680.st_blksize == 0) {
+                  /* M[doLoaderLoad: DiskStore object %x %x %x does not exist] */
+  log(0x4c2d642d,0xa0,0,&DAT_0005ee58,0x1c10003,0x1012002,uVar7);
+  (*(code *)g_vfs_func_table_ptr->close_handle)(iVar3);
+  puVar2[5] = 0x10;
+  *(undefined *)((int)puVar2 + 0x12) = 10;
+  return 0x10;
+}
+```
+
+The capability to lookup symbol names in modules and link them to corresponding symbols in the 
+main binary is present.  
+
+An interesting detail about the loader is that in addition to checking for the standard `\x7fELF` 
+header, it also checks for headers associated with Mach-O binaries:
+
+```c
+if (((uVar1 != 0xcefaedfe) && (uVar1 != 0xfeedface)) &&
+  ((uVar1 != 0xcffaedfe &&
+    (((uVar1 != 0xfeedfacf && (uVar1 != 0xbebafeca)) && (uVar1 != 0xcafebabe)))))) {
+  return 0xd000000c;
+}
+```
+
+This could imply that a version of this implant existed for Darwin-based operating systems. 
+
+While investigating the module system, I had the idea to debug the running implant on a Solaris instance 
+and attempt to dump any modules from memory as they were loaded. 
+
+I ended up writing a GDB script [^7] to break immediately after the module had been read into memory from the virtual file system.  
+
+Executing this script while debugging the implant lead to the recovery of **no less than 31 modules** present
+within the implant.
+
+These modules likely reside in encrypted form within the unallocated section [mentioned above,](#analysis) made 
+accessible via the `DiskStore` API.
+
+### Modules
+
+Each module is an ELF shared object file with at least one named export named `ofn`.
+
+Modules also import named symbols for the main binary - certain external symbols shared the same hashed
+names in the modules as the functions in the implant.  
+
+Some notable modules are listed here:
+
+| Module ID | Notes                                          |
+|-----------|------------------------------------------------|
+| 0x2345    | Statically linked with Apache Portable Runtime |
+| 0x24ee    | Statically linked with libpcap (version 1.3.0) |
+| 0x277e    | Contains string in cleartext: "RPCMGR"         |
+| 0x2786    | File manipulation functionality                |
+| 0x2787    | Directory query/manipulation functionality     |
+| 0x27a6    | Inflate library (version 1.2.7)                |
+| 0x27d9    | Contains string in cleartext: "PackTun"        |
+| 0x27fa    | PCRE library                                   |
+
+## Conclusion
+
+I hope this post has inspired others to look at this fascinating malware sample.  
+
+This implant is on the same level of sophistication as the likes of Regin, Duqu 2.0, and ProjectSauron,  
+and it would be a shame for it to be overlooked for the well-engineered software it is.
+
+Things to be investigated further include:
+- Mechanism of communication between modules
+- Obfuscated log format strings present in modules
+- Structure of virtual file system
+- Presence of configuration data for implant/modules
+- C&C communications
+- ...
+
+The main implant as well as the modules can be found [here.](files.zip) (password: infected)
+
+## Footnotes
+
+[^1]: <https://twitter.com/deresz666/status/1485626389407703044>
+
+[^2]: <https://securelist.com/apt-trends-report-q2-2022/106995/>
+
+[^3]: <https://www.virustotal.com/gui/file/5cdfbfaad93f79d42feecf08a9c7afa5363c847d3e9cb18c3d6188a757b292c6>
+
+[^4]: <https://github.com/misterch0c/shadowbroker/blob/master/windows/Resources/Dsz/Modules/Descriptions/windows/Crc32ref.xml#L6>
+
+[^5]: `Dsz_Implant_Pc.dll` - `54dec8d0fe7036f8acc7b6e06b494b0b`
+
+[^6]: [sbz_main_strings.txt](sbz_main_strings.txt)
+
+[^7]: [sbz_gdb_script.txt](sbz_gdb_script.txt)
