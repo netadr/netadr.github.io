@@ -14,7 +14,7 @@ compiled for Solaris on the SPARC architecture.
 
 | Name | MD5 | Size | Extra info |
 | ---- | --- | ---- | ---------- | 
-| 5 | f4df56203a37706c9e224f29b960dc21 | 1091417 | Submitted by CN submitter to VirusTotal on June 6th, 2018. |
+| 5 | f4df56203a37706c9e224f29b960dc21 | 1091417 | Submitted to VirusTotal on June 6th, 2018. |
 
 *This is far from a complete analysis of the binary. This post serves as a general overview, and to hopefully encourage further research.*
 
