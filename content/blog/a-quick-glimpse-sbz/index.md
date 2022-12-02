@@ -83,7 +83,7 @@ After some quick searching, I agreed with their conclusion:
 ```
 [^4]
 
-Using the `interfaceId` from my example above, it can be seen that XML metadata present in the Shadow Brokers leak describes a module 
+Using the `interfaceId` from my example above, it can be seen that XML metadata present in the Shadow Brokers leak describes an interface 
 with the name "Crc32ref" with the exact same ID value as the example present in our binary. 
 
 Indeed, one of the relevant binaries [^5] from the Shadow Brokers leaks appears to contain the same type of API descriptors:
