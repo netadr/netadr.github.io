@@ -14,7 +14,7 @@ compiled for Solaris on the SPARC architecture.
 
 | Name | MD5 | Size | Extra info |
 | ---- | --- | ---- | ---------- | 
-| 5 | f4df56203a37706c9e224f29b960dc21 | 1091417 | Submitted by CN submitter to VirusTotal on June 6th, 2018. |
+| 5 | f4df56203a37706c9e224f29b960dc21 | 1091417 | Submitted to VirusTotal on June 6th, 2018. |
 
 *This is far from a complete analysis of the binary. This post serves as a general overview, and to hopefully encourage further research.*
 
@@ -83,7 +83,7 @@ After some quick searching, I agreed with their conclusion:
 ```
 [^4]
 
-Using the `interfaceId` from my example above, it can be seen that XML metadata present in the Shadow Brokers leak describes a module 
+Using the `interfaceId` from my example above, it can be seen that XML metadata present in the Shadow Brokers leak describes an interface 
 with the name "Crc32ref" with the exact same ID value as the example present in our binary. 
 
 Indeed, one of the relevant binaries [^5] from the Shadow Brokers leaks appears to contain the same type of API descriptors:
@@ -182,7 +182,7 @@ accessible via the `DiskStore` API.
 
 Each module is an ELF shared object file with at least one named export `ofn`.
 
-Modules also import named symbols for the main binary - certain external symbols shared the same hashed
+Modules also import named symbols for the main binary - certain external symbols share the same hashed
 names in the modules as the functions in the implant.  
 
 Analyzing the modules has been difficult because cross references within them don't resolve properly in Ghidra,
