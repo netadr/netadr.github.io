@@ -231,7 +231,7 @@ From what I'm able to gleam, here's a description of all modules:
 I hope this post has inspired others to look at this fascinating malware sample.  
 
 This implant is on the same level of sophistication as the likes of Regin, Duqu 2.0, and ProjectSauron,  
-and it would be a shame for it to be overlooked for the well-engineered software it is.
+and it would be a shame for it to be overlooked.
 
 Things to be investigated further include:
 - Functionality of modules
