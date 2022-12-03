@@ -180,23 +180,51 @@ accessible via the `DiskStore` API.
 
 ### Modules
 
-Each module is an ELF shared object file with at least one named export named `ofn`.
+Each module is an ELF shared object file with at least one named export `ofn`.
 
 Modules also import named symbols for the main binary - certain external symbols shared the same hashed
 names in the modules as the functions in the implant.  
 
-Some notable modules are listed here:
+Analyzing the modules has been difficult because cross references within them don't resolve properly in Ghidra,
+and the issue responsible has continued to elude me.
 
-| Module ID | Notes                                          |
-|-----------|------------------------------------------------|
-| 0x2345    | Statically linked with Apache Portable Runtime |
-| 0x24ee    | Statically linked with libpcap (version 1.3.0) |
-| 0x277e    | Contains string in cleartext: "RPCMGR"         |
-| 0x2786    | File manipulation functionality                |
-| 0x2787    | Directory query/manipulation functionality     |
-| 0x27a6    | Inflate library (version 1.2.7)                |
-| 0x27d9    | Contains string in cleartext: "PackTun"        |
-| 0x27fa    | PCRE library                                   |
+If anyone has experience with analyzing ELF binaries compiled for the SPARC architecture, don't hesitate to reach out!
+
+From what I'm able to gleam, here's a description of all modules:
+
+| Module ID | Notes                                            |
+|-----------|--------------------------------------------------|
+| 0x2345    | Statically linked with Apache Portable Runtime   |
+| 0x24ee    | Statically linked with libpcap (version 1.3.0)   |
+| 0x2776    | *Unknown*                                        |
+| 0x2777    | Network adapter enumeration                      |
+| 0x277d    | *Unknown*                                        |
+| 0x277e    | Contains string in cleartext: "RPCMGR"           |
+| 0x277f    | *Unknown*                                        |
+| 0x2780    | *Unknown*                                        |
+| 0x2782    | *Unknown*                                        |
+| 0x2786    | File manipulation functionality                  |
+| 0x2787    | Directory enumeration/manipulation functionality |
+| 0x278a    | *Unknown*                                        |
+| 0x278f    | Network functionality (sockets)                  |
+| 0x2790    | Network functionality (sockets)                  |
+| 0x2792    | *Unknown*                                        |
+| 0x2795    | *Unknown*                                        |
+| 0x2797    | *Unknown*                                        |
+| 0x2799    | *Unknown*                                        |
+| 0x279a    | *Unknown*                                        |
+| 0x279b    | *Unknown*                                        |
+| 0x279c    | Time utilities (get time in GMT/UTC, local TZ)   |
+| 0x279d    | *Unknown*                                        |
+| 0x279e    | Additional time utilities                        |
+| 0x279f    | *Unknown*                                        |
+| 0x27a0    | *Unknown*                                        |
+| 0x27a5    | *Unknown*                                        |
+| 0x27a6    | Inflate library (version 1.2.7)                  |
+| 0x27d9    | Contains string in cleartext: "PackTun"          |
+| 0x27da    | *Unknown*                                        |
+| 0x27db    | *Unknown*                                        |
+| 0x27fa    | PCRE library                                     |
 
 ## Conclusion
 
@@ -206,6 +234,7 @@ This implant is on the same level of sophistication as the likes of Regin, Duqu 
 and it would be a shame for it to be overlooked for the well-engineered software it is.
 
 Things to be investigated further include:
+- Functionality of modules
 - Mechanism of communication between modules
 - Obfuscated log format strings present in modules
 - Structure of virtual file system
@@ -213,7 +242,7 @@ Things to be investigated further include:
 - C&C communications
 - ...
 
-The main implant as well as the modules can be found [here.](files.zip) (password: infected)
+The main implant as well as the extracted modules can be found [here.](files.zip) (password: infected)
 
 ## Footnotes
 
