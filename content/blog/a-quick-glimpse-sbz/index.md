@@ -111,7 +111,7 @@ by a custom XOR-based algorithm. The rest are variadic arguments that are format
 
 One of the first things logged by the implant during its execution is its version: `Sbz 2.6.1.0 (Lla 4.2)`.
 
-A list of all decrypted log format strings and other obfuscated strings can be found here [^6].
+A list of all decrypted log format strings and other obfuscated strings from the main binary can be found here [^6].
 
 ### Loader
 
