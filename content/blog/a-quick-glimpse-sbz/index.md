@@ -1,7 +1,7 @@
 +++
-title = "A quick glimpse at \"SBZ\""
+title = "What is \"SBZ?\""
 date = 2022-12-01
-description = "Brief overview of a boutique malware sample"
+description = "A brief overview of an old Equation Group malware framework"
 tags = ["malware", "reverse-engineering"]
 +++
 
