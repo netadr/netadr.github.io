@@ -1,5 +1,5 @@
 +++
-title = "What is \"SBZ?\""
+title = "What is \"SBZ\"?"
 date = 2022-12-01
 description = "A brief overview of an old Equation Group malware framework"
 tags = ["malware", "reverse-engineering"]
