@@ -7,7 +7,7 @@ tags = ["malware", "reverse-engineering"]
 
 ## Introduction
 
-Two months ago, a tweet [^1] was mentioned in passing within GReAT's APT Trends Q2 2022 report. [^2] 
+Some months ago, a tweet [^1] was mentioned in passing within GReAT's APT Trends Q2 2022 report. [^2] 
 
 This tweet includes a hash for an ELF binary [^3]
 compiled for Solaris on the SPARC architecture. 
