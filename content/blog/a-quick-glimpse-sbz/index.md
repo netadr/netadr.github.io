@@ -1,15 +1,15 @@
 +++
 title = "What is \"SBZ\"?"
 date = 2022-12-01
-description = "A brief overview of an old Equation Group malware framework"
+description = "A brief overview of an old novel malware framework"
 tags = ["malware", "reverse-engineering"]
 +++
 
 ## Introduction
 
-Some months ago, a tweet [^1] was mentioned in passing within GReAT's APT Trends Q2 2022 report. [^2] 
+Some months ago, a tweet [^1] was brought to my attention by a collegue.
 
-This tweet includes a hash for an ELF binary [^3]
+This tweet includes a hash for an ELF binary [^2]
 compiled for Solaris on the SPARC architecture. 
 
 | Name | MD5 | Size | Extra info |
@@ -68,28 +68,6 @@ This approximates the functionality of a virtual table, although the binary itse
 
 `registerRoutine` and `deregisterRoutine` appear to point to functions that register and deregister the API, respectively.
 
-As was mentioned in Kaspersky's APT Trends Q2 2022 report, [^2] this sample appears to share API constants with tooling from the Shadow Brokers leak.
-
-After some quick searching, I agreed with their conclusion:
-
-```xml
-<Module id='14' name='Crc32ref'>
-
-    <Interfaces>
-		<Interface id='0x01c16f80' provider='0x04010001'/>
-    </Interfaces>
-    ...
-</Module>
-```
-[^4]
-
-Using the `interfaceId` from my example above, it can be seen that XML metadata present in the Shadow Brokers leak describes an interface 
-with the name "Crc32ref" with the exact same ID value as the example present in our binary. 
-
-Indeed, one of the relevant binaries [^5] from the Shadow Brokers leaks appears to contain the same type of API descriptors:
-
-![Screenshot of Ghidra showing an example of an API descriptor in a binary from the Shadow Brokers leak](dsz_api_descriptor.png)
-
 ### Logging
 
 Advanced attackers that are maintaing long-term operations at scale 
@@ -111,7 +89,7 @@ by a custom XOR-based algorithm. The rest are variadic arguments that are format
 
 One of the first things logged by the implant during its execution is its version: `Sbz 2.6.1.0 (Lla 4.2)`.
 
-A list of all decrypted log format strings and other obfuscated strings from the main binary can be found here [^6].
+A list of all decrypted log format strings and other obfuscated strings from the main binary can be found here [^3].
 
 ### Loader
 
@@ -170,7 +148,7 @@ This could imply that a version of this implant existed for Darwin-based operati
 While investigating the module system, I had the idea to debug the running implant on a Solaris instance 
 and attempt to dump any modules from memory as they were loaded. 
 
-I ended up writing a GDB script [^7] to break immediately after the module had been read into memory from the virtual file system.  
+I ended up writing a GDB script [^4] to break immediately after the module had been read into memory from the virtual file system.  
 
 Executing this script while debugging the implant lead to the recovery of **no less than 31 modules** present
 within the implant.
@@ -230,9 +208,6 @@ From what I'm able to gleam, here's a description of all modules:
 
 I hope this post has inspired others to look at this fascinating malware sample.  
 
-This implant is on the same level of sophistication as the likes of Regin, Duqu 2.0, and ProjectSauron,  
-and it would be a shame for it to be overlooked.
-
 Things to be investigated further include:
 - Functionality of modules
 - Mechanism of communication between modules
@@ -248,14 +223,8 @@ The main implant as well as the extracted modules can be found [here.](files.zip
 
 [^1]: <https://twitter.com/deresz666/status/1485626389407703044>
 
-[^2]: <https://securelist.com/apt-trends-report-q2-2022/106995/>
+[^2]: <https://www.virustotal.com/gui/file/5cdfbfaad93f79d42feecf08a9c7afa5363c847d3e9cb18c3d6188a757b292c6>
 
-[^3]: <https://www.virustotal.com/gui/file/5cdfbfaad93f79d42feecf08a9c7afa5363c847d3e9cb18c3d6188a757b292c6>
+[^3]: [sbz_main_strings.txt](sbz_main_strings.txt)
 
-[^4]: <https://github.com/misterch0c/shadowbroker/blob/master/windows/Resources/Dsz/Modules/Descriptions/windows/Crc32ref.xml#L6>
-
-[^5]: `Dsz_Implant_Pc.dll` - `54dec8d0fe7036f8acc7b6e06b494b0b`
-
-[^6]: [sbz_main_strings.txt](sbz_main_strings.txt)
-
-[^7]: [sbz_gdb_script.txt](sbz_gdb_script.txt)
+[^4]: [sbz_gdb_script.txt](sbz_gdb_script.txt)
