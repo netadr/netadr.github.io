@@ -217,8 +217,6 @@ Things to be investigated further include:
 - C&C communications
 - ...
 
-The main implant as well as the extracted modules can be found [here.](files.zip) (password: infected)
-
 ## Footnotes
 
 [^1]: <https://twitter.com/deresz666/status/1485626389407703044>
