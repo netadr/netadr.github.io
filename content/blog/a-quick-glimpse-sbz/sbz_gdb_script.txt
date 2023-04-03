@@ -1,5 +1,0 @@
-break *0x000338d4
-commands
-eval "dump binary memory mod_%x.bin 0x%x 0x%x+0x%x", $l4, $o1, $o1, $o2
-cont
-end
