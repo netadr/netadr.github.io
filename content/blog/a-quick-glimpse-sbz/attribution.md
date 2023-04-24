@@ -3,7 +3,7 @@
 
 ## Overview
 
-In a [Twitter thread discussing this sample][1], the consensus is unanimous towards this sample being connected to Equation Group.
+In a Twitter thread discussing this sample [^1], the consensus is unanimous towards this sample being connected to Equation Group.
 
 Based on the following indicators, I strongly agree:
 
@@ -15,7 +15,7 @@ DANDERSPRITZ is one of the tools present in the Shadow Brokers' "Lost In Transla
 
 In essence, DANDERSPRITZ is a modular, interactive remote collection tool that provides a scriptable shell-like interface to operators.
 
-After having examined [one of the DANDERSPRITZ implant binaries][2], it is evident that DANDERSPRITZ was  
+After having examined one of the DANDERSPRITZ implant binaries [^2], it is evident that DANDERSPRITZ was  
 built on the same core framework that our binary of interest was built on.  
 
 For starters, API descriptor structures and module structures are present in the `.data` section:
@@ -172,17 +172,17 @@ char * deobfuscate_string(char *dest, char *encrypted, int length)
 
 This algorithm appears all over the place in Equation Group tools compiled for *nix platforms.
 
-Runa Sandvik and Patrick Wardle's OBTS v4.0 talk [Made In America: Analyzing US Spy Agencies macOS Implants][3] 
+Runa Sandvik and Patrick Wardle's OBTS v4.0 talk *Made In America: Analyzing US Spy Agencies macOS Implants* [^3] 
 describe the macOS version of DoubleFantasy (a.k.a. VALIDATOR).
 
 At timestamp 36:08, a variant of this algorithm is shown.
 
-Pangu Labs's [Bvp47 technical report][4] refers to several variants of this algorithm starting on page 29.
+Pangu Labs's Bvp47 technical report [^4] refers to several variants of this algorithm starting on page 29.
 
 Several tools from the Shadow Brokers' EQGRP Unix archive use this algorithm as well, including but not limited to SECONDDATE,
 NOPEN, and DEWDROP.
 
-It so happens that a [Python implementation of the algorithm][5] was included in Shadow Brokers' firewall archive:
+It so happens that a Python implementation of the algorithm [^5] was included in Shadow Brokers' firewall archive:
 
 ```py
 """
@@ -244,7 +244,7 @@ Here the algorithm is referred to as `MixText`.
 
 ### STRAITBIZARRE
 
-Referred to in the Snowden document [Moving Data Through Disconnected Networks][6] is an implant named STRAITBIZARRE:
+Referred to in the Snowden document *Moving Data Through Disconnected Networks* [^6] is an implant named STRAITBIZARRE:
 
 ![Mention of STRAITBIZARRE in "Moving Data Through Disconnected Networks"](../straitbizarre.png)
 
@@ -252,7 +252,7 @@ The same document refers to STRAITBIZARRE later on with the "SBZ" initialism, pr
 
 ### "QUANTUM Shooter SBZ Notes"
 
-Another Snowden document, [QUANTUM Shooter SBZ Notes][7], describes how to configure STRAITBIZARRE for a specific usecase:
+Another Snowden document, *QUANTUM Shooter SBZ Notes* [^7], describes how to configure STRAITBIZARRE for a specific usecase:
 
 ![Image showing instructions on how to configure SBZ](../mhs-sbz.png)
 
@@ -334,16 +334,18 @@ Even so, studying the tools used by the best of the best in the APT world is a h
 
 It left me with an appreciation for the effort that went into writing these components, and left me wondering what today's "apex threat actors"'s implants might look like.
 
-[1]: <https://twitter.com/deresz666/status/1485626389407703044>
+## Links
 
-[2]: <https://www.virustotal.com/gui/file/fbe103fac45abe4e3638055a3cac5e7009166f626cf2d3049fb46f3b53c1057f>
+[^1]: <https://twitter.com/deresz666/status/1485626389407703044>
 
-[3]: <https://youtu.be/bxhVCDPXOHo>
+[^2]: <https://www.virustotal.com/gui/file/fbe103fac45abe4e3638055a3cac5e7009166f626cf2d3049fb46f3b53c1057f>
 
-[4]: <https://www.pangulab.cn/files/The_Bvp47_a_top-tier_backdoor_of_us_nsa_equation_group_ii.en.pdf>
+[^3]: <https://youtu.be/bxhVCDPXOHo>
 
-[5]: <https://github.com/Tseaheng/EQGRP-Auction-Files/blob/master/Firewall/BUZZDIRECTION/BUZZ_1210/SeconddateCnC/noarch/MixText.py>
+[^4]: <https://www.pangulab.cn/files/The_Bvp47_a_top-tier_backdoor_of_us_nsa_equation_group_ii.en.pdf>
 
-[6]: <https://www.eff.org/files/2015/02/03/20150117-spiegel-methods_to_exfiltrate_data_even_from_devices_which_are_supposed_to_be_offline.pdf>
+[^5]: <https://github.com/Tseaheng/EQGRP-Auction-Files/blob/master/Firewall/BUZZDIRECTION/BUZZ_1210/SeconddateCnC/noarch/MixText.py>
 
-[7]: <https://www.eff.org/files/2015/02/03/20150117-spiegel-quantumshooter_implant_to_remote-control_computers_from_unknown_third_parties.pdf>
+[^6]: <https://www.eff.org/files/2015/02/03/20150117-spiegel-methods_to_exfiltrate_data_even_from_devices_which_are_supposed_to_be_offline.pdf>
+
+[^7]: <https://www.eff.org/files/2015/02/03/20150117-spiegel-quantumshooter_implant_to_remote-control_computers_from_unknown_third_parties.pdf>

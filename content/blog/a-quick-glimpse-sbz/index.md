@@ -6,9 +6,13 @@ tags = ["malware", "reverse-engineering"]
 +++
 
 <style>
-table, td, th { 
-  border: 1px solid;
-  padding: 4px;
+table, td, th {
+    border: 1px solid;
+    border-collapse: collapse;
+}
+
+td, th {
+  padding: 10px;
 }
 </style>
 
@@ -28,13 +32,14 @@ table, td, th {
 6.1 [Binary hashes](#binary-hashes)  
 6.2 [Network indicators](#network-indicators)  
 6.3 [YARA rules](#yara-rules)  
-6.4 [Companion Git repository](#companion-git-repository)
+6.4 [Companion Git repository](#companion-git-repository)  
+6.5 [Links](#links)
 
 ## Introduction
 
 During late summer 2022, I was made aware of a sophisticated implant sample that had been uploaded to VirusTotal.
 
-The [implant][1] is an ELF binary compiled for the Solaris operating system on the 32 bit SPARC architecture.
+The implant [^1] is an ELF binary compiled for the Solaris operating system on the 32 bit SPARC architecture.
 
 No development time frame is immediately evident from the binary, but ELF comments indicate that parts of it were compiled using GCC 4.5.1, 4.1.2, and 3.4.4. 
 
@@ -573,10 +578,12 @@ rule Hunting_SBZ_ModuleStruct {
 
 ### Companion Git repository
 
-For various tools and other bits I created while working on this research, go [here][2].
+For various tools and other bits I created while working on this research, go here. [^2]
 
 The password for the samples archive is `D2vMR9wK5PxdAyrjh2kzCbzL`.
 
-[1]: <https://www.virustotal.com/gui/file/5cdfbfaad93f79d42feecf08a9c7afa5363c847d3e9cb18c3d6188a757b292c6>
+### Links
 
-[2]: <https://github.com/netadr/sbz>
+[^1]: <https://www.virustotal.com/gui/file/5cdfbfaad93f79d42feecf08a9c7afa5363c847d3e9cb18c3d6188a757b292c6>
+
+[^2]: <https://github.com/netadr/sbz>
