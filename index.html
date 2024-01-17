@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <title>clayton&#x27;s site</title>
+    
+    <link rel="stylesheet" href="https://netadr.github.io/style.css?h=8b0c8e67741cde488629">
+    
+</head>
+<body>
+    
+    <header class="space">
+        <h1>clayton&#x27;s site</h1>
+        
+        
+        <nav class="header-links">
+            
+            <a href="https:&#x2F;&#x2F;github.com&#x2F;netadr">GitHub</a>
+            
+            <a href="https:&#x2F;&#x2F;twitter.com&#x2F;@netadr_t">Twitter</a>
+            
+            <a href="https:&#x2F;&#x2F;infosec.exchange&#x2F;@netadr_t">Mastodon</a>
+            
+            <a href="https:&#x2F;&#x2F;discord.com&#x2F;users&#x2F;307997003969855488">Discord</a>
+            
+            
+        </nav>
+        
+    </header>
+    
+    
+    
+    
+    <main>
+        
+        <div class="space">
+            <p>An undergraduate student at the University of Tennessee Knoxville with an interest in reverse engineering, operating systems internals, malware, and neat things.</p>
+
+        </div>
+        
+        
+        <h2>Recent posts</h2>
+        <ul>
+            
+            <li><a href="https:&#x2F;&#x2F;netadr.github.io&#x2F;blog&#x2F;a-quick-glimpse-sbz&#x2F;">Equation Group&#x27;s &quot;SBZ&quot;</a></li>
+            
+        </ul>
+        <p><a href="https:&#x2F;&#x2F;netadr.github.io&#x2F;blog&#x2F;">Archive</a></p>
+        
+    </main>
+    
+    
+    <div class="dark-mode-buttons">
+        <button class="dark-mode-button" id="dark-mode-on"><img src="https://netadr.github.io/dark_mode.svg" width="24" height="24" alt="Dark mode" aria-label="dark mode toggle" title="Dark mode"></button>
+        <button class="dark-mode-button" id="dark-mode-off"><img src="https://netadr.github.io/light_mode.svg" width="24" height="24" alt="Light mode" aria-label="light mode toggle" title="Light mode"></button>
+    </div>
+    <script>
+        const cls = document.body.classList;
+        const getSessionTheme = sessionStorage.getItem("theme");
+        if (getSessionTheme === "dark") {
+            cls.toggle("dark-mode", true);
+        } else if (getSessionTheme === "light") {
+            cls.toggle("dark-mode", false);
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            cls.toggle("dark-mode", true);
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", true);
+            sessionStorage.setItem("theme", "dark");
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", false);
+            sessionStorage.setItem("theme", "light");
+        });
+    </script>
+    <noscript>
+        <style>
+            .dark-mode-buttons {
+                display: none;
+            }
+        </style>
+    </noscript>
+</body>
+</html>

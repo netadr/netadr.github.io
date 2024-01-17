@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <title>clayton&#x27;s site | </title>
+    
+    <link rel="stylesheet" href="https://netadr.github.io/style.css?h=8b0c8e67741cde488629">
+    
+</head>
+<body>
+    
+<header class="space">
+    <a href="https:&#x2F;&#x2F;netadr.github.io">&LeftArrow; Home</a>
+</header>
+
+    
+<main>
+    <h1></h1>
+    
+    <div class="space"></div>
+    <h2 id="overview">Overview</h2>
+<p>In a Twitter thread discussing this sample <sup class="footnote-reference"><a href="#1">1</a></sup>, the consensus is unanimous towards this sample being connected to Equation Group.</p>
+<p>Based on the following indicators, I strongly agree:</p>
+<h2 id="technical-clues">Technical clues</h2>
+<h3 id="danderspritz">DANDERSPRITZ</h3>
+<p>DANDERSPRITZ is one of the tools present in the Shadow Brokers' &quot;Lost In Translation&quot; cache of stolen NSA data.</p>
+<p>In essence, DANDERSPRITZ is a modular, interactive remote collection tool that provides a scriptable shell-like interface to operators.</p>
+<p>After having examined one of the DANDERSPRITZ implant binaries <sup class="footnote-reference"><a href="#2">2</a></sup>, it is evident that DANDERSPRITZ was<br />
+built on the same core framework that our binary of interest was built on.</p>
+<p>For starters, API descriptor structures and module structures are present in the <code>.data</code> section:</p>
+<p><img src="../dsz-api.png" alt="Example of API descriptor in DANDERSPRITZ" /></p>
+<p><img src="../dsz-module.png" alt="Example of module descriptor in DANDERSPRITZ" /></p>
+<p>Several API implementations are registered in DANDERSPRITZ with similar functionality and the 
+same API IDs (but different implementation IDs!) compared to our sample.</p>
+<p>For example, DANDERSPRITZ registers an API implementation for dynamically loading additional modules from PE files.</p>
+<p>This API implementation has an API ID of <code>1C10003</code>, which is the same API ID as the ELF module loader from our sample.</p>
+<p>The implementation ID differs, however (<code>1012003</code> in DANDERSPRITZ vs <code>1012002</code> in our sample).</p>
+<p>In additional, an initialization function called early in DANDERSPRITZ's runtime is almost identical to one called in our sample:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span>ulonglong </span><span style="color:#8fa1b3;">FUN_18001f394</span><span>(HANDLE *</span><span style="color:#bf616a;">param_1</span><span>,longlong </span><span style="color:#bf616a;">param_2</span><span>)
+</span><span>{
+</span><span>    </span><span style="color:#b48ead;">int</span><span> iVar1;
+</span><span>    uint uVar2;
+</span><span>    ulonglong uVar3;
+</span><span>    ulonglong uVar4;
+</span><span>
+</span><span>    iVar1 = </span><span style="color:#bf616a;">FUN_18003a878</span><span>(param_1);
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(iVar1 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(DAT_1800515e8 == &#39;</span><span style="color:#96b5b4;">\0</span><span>&#39;) {
+</span><span>            DAT_1800515e8 = </span><span style="color:#d08770;">1</span><span>;
+</span><span>            DAT_1800515f0 = param_1;
+</span><span>            </span><span style="color:#bf616a;">FUN_18003a898</span><span>(param_1);
+</span><span>            uVar4 = </span><span style="color:#bf616a;">FUN_18001fc64</span><span>();
+</span><span>            uVar3 = uVar4 &amp; </span><span style="color:#d08770;">0xffffffff</span><span>;
+</span><span>            </span><span style="color:#b48ead;">if </span><span>((</span><span style="color:#b48ead;">int</span><span>)uVar4 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>                uVar4 = </span><span style="color:#bf616a;">FUN_180020bd0</span><span>();
+</span><span>                uVar3 = uVar4 &amp; </span><span style="color:#d08770;">0xffffffff</span><span>;
+</span><span>                </span><span style="color:#b48ead;">if </span><span>((</span><span style="color:#b48ead;">int</span><span>)uVar4 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>                    uVar2 = </span><span style="color:#bf616a;">FUN_18002000c</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>,param_2);
+</span><span>                    uVar3 = (ulonglong)uVar2;
+</span><span>                    </span><span style="color:#b48ead;">if </span><span>(uVar2 != </span><span style="color:#d08770;">0</span><span>) {
+</span><span>                        </span><span style="color:#bf616a;">FUN_18001f2f4</span><span>(param_1);
+</span><span>                    }
+</span><span>                    </span><span style="color:#bf616a;">FUN_18001fdd0</span><span>();
+</span><span>                    </span><span style="color:#bf616a;">FUN_18000d1e8</span><span>();
+</span><span>                }
+</span><span>                </span><span style="color:#bf616a;">FUN_18001fc30</span><span>();
+</span><span>            }
+</span><span>            </span><span style="color:#bf616a;">FUN_18003a878</span><span>(DAT_1800515f0);
+</span><span>            DAT_1800515f0 = (HANDLE *)</span><span style="color:#d08770;">0x0</span><span>;
+</span><span>            DAT_1800515e8 = &#39;</span><span style="color:#96b5b4;">\0</span><span>&#39;;
+</span><span>        }
+</span><span>        </span><span style="color:#b48ead;">else </span><span>{
+</span><span>            uVar3 = </span><span style="color:#d08770;">0xe0000013</span><span>;
+</span><span>        }
+</span><span>        </span><span style="color:#bf616a;">FUN_18003a898</span><span>(param_1);
+</span><span>    }
+</span><span>    </span><span style="color:#b48ead;">else </span><span>{
+</span><span>        uVar3 = </span><span style="color:#d08770;">0xf0000002</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#b48ead;">return</span><span> uVar3;
+</span><span>}
+</span></code></pre>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span>uint </span><span style="color:#8fa1b3;">framework_init</span><span>(undefined4 </span><span style="color:#bf616a;">param_1</span><span>,undefined4 </span><span style="color:#bf616a;">param_2</span><span>)
+</span><span>{
+</span><span>    </span><span style="color:#b48ead;">int</span><span> iVar1;
+</span><span>    uint uVar2;
+</span><span>
+</span><span>    iVar1 = system_mutex_lock</span><span style="color:#d08770;">.8233</span><span style="background-color:#bf616a;color:#2b303b;">aa7c</span><span>(param_1);
+</span><span>    uVar2 = </span><span style="color:#d08770;">0xf0000002</span><span>;
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(iVar1 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(s_framework_is_initializing == </span><span style="color:#d08770;">false</span><span>) {
+</span><span>            s_framework_is_initializing = </span><span style="color:#d08770;">true</span><span>;
+</span><span>            DAT_00077ff4 = param_1;
+</span><span>            </span><span style="color:#bf616a;">FUN_00037590</span><span>();
+</span><span>            uVar2 = </span><span style="color:#bf616a;">FUN_00038880</span><span>();
+</span><span>            </span><span style="color:#b48ead;">if </span><span>(uVar2 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>                uVar2 = </span><span style="color:#bf616a;">FUN_000399b0</span><span>();
+</span><span>                </span><span style="color:#b48ead;">if </span><span>(uVar2 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>                    uVar2 = </span><span style="color:#bf616a;">FUN_00038370</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>,param_2);
+</span><span>                    </span><span style="color:#b48ead;">if </span><span>(uVar2 != </span><span style="color:#d08770;">0</span><span>) {
+</span><span>                    </span><span style="color:#bf616a;">FUN_000376f4</span><span>(param_1);
+</span><span>                    }
+</span><span>                    </span><span style="color:#bf616a;">FUN_0003893c</span><span>();
+</span><span>                    </span><span style="color:#bf616a;">FUN_000399e8</span><span>();
+</span><span>                }
+</span><span>                </span><span style="color:#bf616a;">FUN_00038824</span><span>();
+</span><span>            }
+</span><span>            </span><span style="color:#bf616a;">FUN_00037564</span><span>();
+</span><span>            s_framework_is_initializing = </span><span style="color:#d08770;">false</span><span>;
+</span><span>            DAT_00077ff4 = </span><span style="color:#d08770;">0</span><span>;
+</span><span>            system_mutex_unlock</span><span style="color:#d08770;">.16</span><span style="background-color:#bf616a;color:#2b303b;">a15934</span><span>(param_1);
+</span><span>            </span><span style="color:#b48ead;">return</span><span> uVar2;
+</span><span>        }
+</span><span>        system_mutex_unlock</span><span style="color:#d08770;">.16</span><span style="background-color:#bf616a;color:#2b303b;">a15934</span><span>(param_1);
+</span><span>        uVar2 = </span><span style="color:#d08770;">0xe0000013</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#b48ead;">return</span><span> uVar2;
+</span><span>}
+</span></code></pre>
+<p>Outside of the implant binary, other files in the leak provide clues.</p>
+<p>Located at <code>Resources/Dsz/PyScripts/Lib/mcl/status/framework/cp.pyo</code> is a Python script listing various internal error codes that may be returned by DANDERSPRITZ components.</p>
+<p>Error code constants defined in this file are also used internally by our sample of interest and associated modules.</p>
+<p>The script also mentions two libraries: <code>LLA</code> and <code>CHM</code>.</p>
+<p>Both of these are mentioned in our sample of interest:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#65737e;">/* M[Sbz %d.%d.%d.%d (Lla %d.%d)] */
+</span><span>log</span><span style="color:#d08770;">.90163</span><span style="background-color:#bf616a;color:#2b303b;">d70</span><span>(</span><span style="color:#d08770;">0x5966aefb</span><span>,</span><span style="color:#d08770;">0x80</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_0005fea0,</span><span style="color:#d08770;">2</span><span>,</span><span style="color:#d08770;">6</span><span>,</span><span style="color:#d08770;">1</span><span>,</span><span style="color:#d08770;">0</span><span>,</span><span style="color:#d08770;">4</span><span>,</span><span style="color:#d08770;">2</span><span>);
+</span><span>
+</span><span>...
+</span><span>
+</span><span style="color:#b48ead;">if </span><span>((iVar2 == </span><span style="color:#d08770;">0x14</span><span>) || (iVar2 == </span><span style="color:#d08770;">0</span><span>)) {
+</span><span>    </span><span style="color:#bf616a;">b913b039</span><span>(&quot;</span><span style="color:#a3be8c;">&lt;</span><span style="color:#d08770;">%u</span><span style="color:#a3be8c;">&gt;[</span><span style="color:#d08770;">%s</span><span style="color:#a3be8c;">] Event #</span><span style="color:#d08770;">%u</span><span style="color:#a3be8c;">: </span><span>&quot;,</span><span style="color:#d08770;">7</span><span>,&quot;</span><span style="color:#a3be8c;">CHM_FW</span><span>&quot;,</span><span style="color:#d08770;">0</span><span>);
+</span><span>    </span><span style="color:#bf616a;">b913b039</span><span>(&quot;</span><span style="color:#a3be8c;">_r </span><span style="color:#d08770;">%d</span><span style="color:#96b5b4;">\n</span><span>&quot;,iVar2);
+</span><span>    </span><span style="color:#bf616a;">c00bf363</span><span>();
+</span><span>}
+</span></code></pre>
+<h3 id="mixtext">MixText</h3>
+<p>Some sensitive strings in our sample and associated modules are obfuscated.</p>
+<p>The algorithm to deobfuscate them looks like so:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#b48ead;">char </span><span>* </span><span style="color:#8fa1b3;">deobfuscate_string</span><span>(</span><span style="color:#b48ead;">char </span><span>*</span><span style="color:#bf616a;">dest</span><span>, </span><span style="color:#b48ead;">char </span><span>*</span><span style="color:#bf616a;">encrypted</span><span>, </span><span style="color:#b48ead;">int </span><span style="color:#bf616a;">length</span><span>)
+</span><span>{
+</span><span>    byte initial;
+</span><span>    uint counter;
+</span><span>    byte current;
+</span><span>  
+</span><span>    initial = *encrypted;
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(</span><span style="color:#d08770;">1 </span><span>&lt; length + </span><span style="color:#d08770;">1</span><span style="color:#b48ead;">U</span><span>) {
+</span><span>        counter = </span><span style="color:#d08770;">1</span><span>;
+</span><span>        </span><span style="color:#b48ead;">do </span><span>{
+</span><span>            current = encrypted[counter];
+</span><span>            dest[counter - </span><span style="color:#d08770;">1</span><span>] = (byte)counter ^ current ^ </span><span style="color:#d08770;">0x47 </span><span>^ initial;
+</span><span>            counter = counter + </span><span style="color:#d08770;">1</span><span>;
+</span><span>            initial = initial + current;
+</span><span>        } </span><span style="color:#b48ead;">while </span><span>(counter &lt; length + </span><span style="color:#d08770;">1</span><span style="color:#b48ead;">U</span><span>);
+</span><span>    }
+</span><span>    </span><span style="color:#b48ead;">return</span><span> dest;
+</span><span>}
+</span></code></pre>
+<p>This algorithm appears all over the place in Equation Group tools compiled for *nix platforms.</p>
+<p>Runa Sandvik and Patrick Wardle's OBTS v4.0 talk <em>Made In America: Analyzing US Spy Agencies macOS Implants</em> <sup class="footnote-reference"><a href="#3">3</a></sup> 
+describe the macOS version of DoubleFantasy (a.k.a. VALIDATOR).</p>
+<p>At timestamp 36:08, a variant of this algorithm is shown.</p>
+<p>Pangu Labs's Bvp47 technical report <sup class="footnote-reference"><a href="#4">4</a></sup> refers to several variants of this algorithm starting on page 29.</p>
+<p>Several tools from the Shadow Brokers' EQGRP Unix archive use this algorithm as well, including but not limited to SECONDDATE,
+NOPEN, and DEWDROP.</p>
+<p>It so happens that a Python implementation of the algorithm <sup class="footnote-reference"><a href="#5">5</a></sup> was included in Shadow Brokers' firewall archive:</p>
+<pre data-lang="py" style="background-color:#2b303b;color:#c0c5ce;" class="language-py "><code class="language-py" data-lang="py"><span style="color:#65737e;">&quot;&quot;&quot;
+</span><span style="color:#65737e;">This is a python implementation of the core
+</span><span style="color:#65737e;">MixText functionality.  This is originally intended
+</span><span style="color:#65737e;">to be used with BinStore to allow any machine to configure
+</span><span style="color:#65737e;">BinStore enabled implants.
+</span><span style="color:#65737e;">&quot;&quot;&quot;
+</span><span>
+</span><span style="color:#b48ead;">import </span><span>sys
+</span><span>
+</span><span style="color:#bf616a;">MIX_TEXT_KEY_BYTE</span><span>=</span><span style="color:#d08770;">0x47
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">mix</span><span>(</span><span style="color:#bf616a;">src</span><span>, </span><span style="color:#bf616a;">rand</span><span>):
+</span><span>    </span><span style="color:#b48ead;">global </span><span style="color:#bf616a;">MIX_TEXT_KEY_BYTE
+</span><span>    prev = &quot;&quot;
+</span><span>    retval = &quot;&quot;
+</span><span>    i = </span><span style="color:#d08770;">0
+</span><span>
+</span><span>    rand &amp;= </span><span style="color:#d08770;">0xff
+</span><span>    
+</span><span>    prev = (i ^ rand ^ </span><span style="color:#bf616a;">MIX_TEXT_KEY_BYTE</span><span>)
+</span><span>    retval += </span><span style="color:#96b5b4;">chr</span><span>(prev)
+</span><span>    i += </span><span style="color:#d08770;">1
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">for </span><span>char </span><span style="color:#b48ead;">in </span><span>src:
+</span><span>        c = </span><span style="color:#96b5b4;">ord</span><span>(char)
+</span><span>        value = (c ^ (i ^ prev ^ </span><span style="color:#bf616a;">MIX_TEXT_KEY_BYTE</span><span>)) &amp; </span><span style="color:#d08770;">0xff
+</span><span>        retval += </span><span style="color:#96b5b4;">chr</span><span>(value)
+</span><span>        prev += value
+</span><span>        prev &amp;= </span><span style="color:#d08770;">0xff
+</span><span>        i += </span><span style="color:#d08770;">1        
+</span><span>        
+</span><span>        
+</span><span>    </span><span style="color:#b48ead;">return </span><span>retval
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">unmix</span><span>(</span><span style="color:#bf616a;">src</span><span>):
+</span><span>    </span><span style="color:#b48ead;">global </span><span style="color:#bf616a;">MIX_TEXT_KEY_BYTE
+</span><span>    i = </span><span style="color:#d08770;">0
+</span><span>    retval = &quot;&quot;
+</span><span>    
+</span><span>    prev = </span><span style="color:#96b5b4;">ord</span><span>(src[i])
+</span><span>    i += </span><span style="color:#d08770;">1
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">for </span><span>char </span><span style="color:#b48ead;">in </span><span>src[i:]:
+</span><span>        c = </span><span style="color:#96b5b4;">ord</span><span>(char)
+</span><span>        value = (c ^ </span><span style="color:#bf616a;">MIX_TEXT_KEY_BYTE </span><span>^ prev ^ i) &amp; </span><span style="color:#d08770;">0xff
+</span><span>        retval += </span><span style="color:#96b5b4;">chr</span><span>(value)
+</span><span>        prev += c
+</span><span>        prev &amp;= </span><span style="color:#d08770;">0xff
+</span><span>        i += </span><span style="color:#d08770;">1
+</span><span>        
+</span><span>    </span><span style="color:#b48ead;">return </span><span>retval
+</span></code></pre>
+<p>Here the algorithm is referred to as <code>MixText</code>.</p>
+<h2 id="other-bits">Other bits</h2>
+<h3 id="straitbizarre">STRAITBIZARRE</h3>
+<p>Referred to in the Snowden document <em>Moving Data Through Disconnected Networks</em> <sup class="footnote-reference"><a href="#6">6</a></sup> is an implant named STRAITBIZARRE:</p>
+<p><img src="../straitbizarre.png" alt="Mention of STRAITBIZARRE in &quot;Moving Data Through Disconnected Networks&quot;" /></p>
+<p>The same document refers to STRAITBIZARRE later on with the &quot;SBZ&quot; initialism, providing a thin link for us to pull on.</p>
+<h3 id="quantum-shooter-sbz-notes">&quot;QUANTUM Shooter SBZ Notes&quot;</h3>
+<p>Another Snowden document, <em>QUANTUM Shooter SBZ Notes</em> <sup class="footnote-reference"><a href="#7">7</a></sup>, describes how to configure STRAITBIZARRE for a specific usecase:</p>
+<p><img src="../mhs-sbz.png" alt="Image showing instructions on how to configure SBZ" /></p>
+<p>Again we see the &quot;SBZ&quot; initialism in use.</p>
+<p>More telling is the line stating to configure &quot;BonjourMod not to send heartbeats.&quot;</p>
+<p>Module <code>2777</code> contains log messages where it refers to itself as <code>Bonjour</code>:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">hb_set_priority</span><span>(byte </span><span style="color:#bf616a;">param_1</span><span>)
+</span><span>{
+</span><span>    </span><span style="color:#b48ead;">int</span><span> iVar1;
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(param_1 &lt; </span><span style="color:#d08770;">0x10</span><span>) {
+</span><span>            s_hb_priority = param_1;
+</span><span>            iVar1 = </span><span style="color:#bf616a;">FUN_00011574</span><span>();
+</span><span>            </span><span style="color:#b48ead;">if </span><span>(iVar1 != </span><span style="color:#d08770;">0</span><span>) {
+</span><span>                </span><span style="color:#65737e;">/* M[b_sP: wC rc 0x%x] */
+</span><span>                </span><span style="color:#bf616a;">sbz_log</span><span>(</span><span style="color:#d08770;">0x62d0a7e</span><span>,</span><span style="color:#d08770;">0xc0</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_00016ba8,iVar1);
+</span><span>                </span><span style="color:#b48ead;">return</span><span> iVar1;
+</span><span>            }
+</span><span>        }
+</span><span>        </span><span style="color:#b48ead;">else </span><span>{
+</span><span>        </span><span style="color:#65737e;">/* M[Bonjour: ERROR setting the priority for the heartbeat. The parameter was
+</span><span style="color:#65737e;">            too large
+</span><span style="color:#65737e;">            ] */
+</span><span>        </span><span style="color:#bf616a;">sbz_log</span><span>(</span><span style="color:#d08770;">0x62d0a7e</span><span>,</span><span style="color:#d08770;">0xc0</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_00016b50);
+</span><span>        iVar1 = </span><span style="color:#d08770;">0xab0104</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#b48ead;">return</span><span> iVar1;
+</span><span>}
+</span></code></pre>
+<p>Module <code>2345</code> also uses the same <code>Xfil</code> spelling as <code>SbzXfilMod</code> in log messages:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span>iVar1 = (*(code *)PTR_0005d9b8-&gt;acquire_api)(DAT_0005dc84,</span><span style="color:#d08770;">0x1c16f98</span><span>,</span><span style="color:#d08770;">0</span><span>,</span><span style="color:#d08770;">0</span><span>,auStack_8,&amp;local_4);
+</span><span style="color:#b48ead;">if </span><span>(iVar1 != </span><span style="color:#d08770;">0</span><span>) {
+</span><span>                    </span><span style="color:#65737e;">/* M[getApi for Xfil rc 0x%08x] */
+</span><span>    </span><span style="color:#bf616a;">sbz_log</span><span>(</span><span style="color:#d08770;">0x59ac4587</span><span>,</span><span style="color:#d08770;">0xc0</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_00049248,iVar1);
+</span><span>    </span><span style="color:#b48ead;">return</span><span> iVar1;
+</span><span>}
+</span><span>
+</span><span style="color:#bf616a;">system_memset</span><span>(&amp;uStack_34,</span><span style="color:#d08770;">0</span><span>,</span><span style="color:#d08770;">0x2c</span><span>);
+</span><span>
+</span><span>uStack_34.</span><span style="color:#bf616a;">_4_4_ </span><span>= </span><span style="color:#d08770;">0x181703b</span><span>;
+</span><span>uStack_34.</span><span style="color:#bf616a;">_8_4_ </span><span>= </span><span style="color:#d08770;">0x5010001</span><span>;
+</span><span>uStack_34.</span><span style="color:#bf616a;">_20_4_ </span><span>= </span><span style="color:#d08770;">1</span><span>;
+</span><span>uStack_34.</span><span style="color:#bf616a;">_0_4_ </span><span>= param_1;
+</span><span>uStack_34.</span><span style="color:#bf616a;">_12_4_ </span><span>= param_6;
+</span><span>uStack_34.</span><span style="color:#bf616a;">_16_4_ </span><span>= param_2;
+</span><span>uStack_34.</span><span style="color:#bf616a;">_24_1_ </span><span>= param_3;
+</span><span>
+</span><span>iVar1 = (*(code *)local_4-&gt;create_session)(&amp;uStack_34,&amp;local_38);
+</span><span>
+</span><span style="color:#b48ead;">if </span><span>(iVar1 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>iVar1 = (*(code *)local_4-&gt;session_write)(local_38,param_5,param_4);
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(iVar1 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>        iVar1 = (*(code *)local_4-&gt;close_session)(local_38,</span><span style="color:#d08770;">0</span><span>);
+</span><span>    }
+</span><span>    </span><span style="color:#b48ead;">else </span><span>{
+</span><span>        iVar1 = (*(code *)local_4-&gt;cancel_session)(local_38);
+</span><span>    }
+</span><span>    (*(code *)PTR_0005d9b8-&gt;release_api)(auStack_8);
+</span><span>    </span><span style="color:#b48ead;">return</span><span> iVar1;
+</span><span>}
+</span><span>                </span><span style="color:#65737e;">/* M[Xfil session rc 0x%08x] */
+</span><span style="color:#bf616a;">sbz_log</span><span>(</span><span style="color:#d08770;">0x59ac4587</span><span>,</span><span style="color:#d08770;">0xc0</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_00049268,iVar1);
+</span></code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>Based on the above facts, I find with high confidence that our sample of interest is a variant of STRAITBIZARRE.</p>
+<p>Due to the cascade of leaks originating from NSA circa 2013-2017, it is highly unlikely this tool or any related tool is still in use.</p>
+<p>Even so, studying the tools used by the best of the best in the APT world is a highly enriching experience.</p>
+<p>It left me with an appreciation for the effort that went into writing these components, and left me wondering what today's &quot;apex threat actors&quot;'s implants might look like.</p>
+<h2 id="links">Links</h2>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://twitter.com/deresz666/status/1485626389407703044">https://twitter.com/deresz666/status/1485626389407703044</a></p>
+</div>
+<div class="footnote-definition" id="2"><sup class="footnote-definition-label">2</sup>
+<p><a href="https://www.virustotal.com/gui/file/fbe103fac45abe4e3638055a3cac5e7009166f626cf2d3049fb46f3b53c1057f">https://www.virustotal.com/gui/file/fbe103fac45abe4e3638055a3cac5e7009166f626cf2d3049fb46f3b53c1057f</a></p>
+</div>
+<div class="footnote-definition" id="3"><sup class="footnote-definition-label">3</sup>
+<p><a href="https://youtu.be/bxhVCDPXOHo">https://youtu.be/bxhVCDPXOHo</a></p>
+</div>
+<div class="footnote-definition" id="4"><sup class="footnote-definition-label">4</sup>
+<p><a href="https://www.pangulab.cn/files/The_Bvp47_a_top-tier_backdoor_of_us_nsa_equation_group_ii.en.pdf">https://www.pangulab.cn/files/The_Bvp47_a_top-tier_backdoor_of_us_nsa_equation_group_ii.en.pdf</a></p>
+</div>
+<div class="footnote-definition" id="5"><sup class="footnote-definition-label">5</sup>
+<p><a href="https://github.com/Tseaheng/EQGRP-Auction-Files/blob/master/Firewall/BUZZDIRECTION/BUZZ_1210/SeconddateCnC/noarch/MixText.py">https://github.com/Tseaheng/EQGRP-Auction-Files/blob/master/Firewall/BUZZDIRECTION/BUZZ_1210/SeconddateCnC/noarch/MixText.py</a></p>
+</div>
+<div class="footnote-definition" id="6"><sup class="footnote-definition-label">6</sup>
+<p><a href="https://www.eff.org/files/2015/02/03/20150117-spiegel-methods_to_exfiltrate_data_even_from_devices_which_are_supposed_to_be_offline.pdf">https://www.eff.org/files/2015/02/03/20150117-spiegel-methods_to_exfiltrate_data_even_from_devices_which_are_supposed_to_be_offline.pdf</a></p>
+</div>
+<div class="footnote-definition" id="7"><sup class="footnote-definition-label">7</sup>
+<p><a href="https://www.eff.org/files/2015/02/03/20150117-spiegel-quantumshooter_implant_to_remote-control_computers_from_unknown_third_parties.pdf">https://www.eff.org/files/2015/02/03/20150117-spiegel-quantumshooter_implant_to_remote-control_computers_from_unknown_third_parties.pdf</a></p>
+</div>
+
+</main>
+
+    <div class="dark-mode-buttons">
+        <button class="dark-mode-button" id="dark-mode-on"><img src="https://netadr.github.io/dark_mode.svg" width="24" height="24" alt="Dark mode" aria-label="dark mode toggle" title="Dark mode"></button>
+        <button class="dark-mode-button" id="dark-mode-off"><img src="https://netadr.github.io/light_mode.svg" width="24" height="24" alt="Light mode" aria-label="light mode toggle" title="Light mode"></button>
+    </div>
+    <script>
+        const cls = document.body.classList;
+        const getSessionTheme = sessionStorage.getItem("theme");
+        if (getSessionTheme === "dark") {
+            cls.toggle("dark-mode", true);
+        } else if (getSessionTheme === "light") {
+            cls.toggle("dark-mode", false);
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            cls.toggle("dark-mode", true);
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", true);
+            sessionStorage.setItem("theme", "dark");
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", false);
+            sessionStorage.setItem("theme", "light");
+        });
+    </script>
+    <noscript>
+        <style>
+            .dark-mode-buttons {
+                display: none;
+            }
+        </style>
+    </noscript>
+</body>
+</html>
