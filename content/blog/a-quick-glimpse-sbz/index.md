@@ -28,7 +28,7 @@ td, th {
 3.1.1. [ELF loader](#elf-loader)  
 3.2. [Data Objects](#data-objects)
 4. [Command and Control](#command-and-control)
-5. [Attribution and Conclusions](#attribution-and-conclusions)
+5. [Conclusion](#conclusion)
 6. [Appendix](#appendix)  
 6.1 [Binary hashes](#binary-hashes)  
 6.2 [Network indicators](#network-indicators)  
@@ -475,11 +475,11 @@ and the directories are not created by default.
 
 It's my belief that those directories could be created in special cases where external tools are used to tunnel communications to/from the implant.
 
-## Attribution and Conclusions
+## Conclusion
 
-**Warning for active clearance holders: This section cites classified and leaked materials.**
+Studying the tools used by the best of the best in the APT world is a highly enriching experience.
 
-If the above warning does not apply to you, go [here](@/blog/a-quick-glimpse-sbz/attribution.md).
+It left me with an appreciation for the effort that went into writing these components, and left me wondering what today's "apex threat actors"'s implants might look like.
 
 ## Appendix
 
