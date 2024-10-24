@@ -3,6 +3,7 @@ title = "About the \"SBZ\" implant..."
 date = 2023-04-02
 description = "An overview of a historical boutique malware framework"
 tags = ["malware", "reverse-engineering"]
+draft = True
 +++
 
 <style>
@@ -579,14 +580,7 @@ rule Hunting_SBZ_ModuleStruct {
 }
 ```
 
-### Companion Git repository
-
-For various tools and other bits I created while working on this research, go here. [^2]
-
-The password for the samples archive is `D2vMR9wK5PxdAyrjh2kzCbzL`.
-
 ### Links
 
 [^1]: <https://www.virustotal.com/gui/file/5cdfbfaad93f79d42feecf08a9c7afa5363c847d3e9cb18c3d6188a757b292c6>
 
-[^2]: <https://github.com/netadr/sbz>
