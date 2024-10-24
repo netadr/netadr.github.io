@@ -3,7 +3,6 @@ title = "About the \"SBZ\" implant..."
 date = 2023-04-02
 description = "An overview of a historical boutique malware framework"
 tags = ["malware", "reverse-engineering"]
-draft = True
 +++
 
 <style>
