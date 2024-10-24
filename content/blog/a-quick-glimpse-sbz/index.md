@@ -33,8 +33,7 @@ td, th {
 6.1 [Binary hashes](#binary-hashes)  
 6.2 [Network indicators](#network-indicators)  
 6.3 [YARA rules](#yara-rules)  
-6.4 [Companion Git repository](#companion-git-repository)  
-6.5 [Links](#links)
+6.4 [Links](#links)
 
 ## Introduction
 
