@@ -11,7 +11,6 @@ highlight_code = true
 [extra]
 links = [
     {title = "GitHub", href = "https://github.com/netadr"},
-    {title = "Twitter", href = "https://twitter.com/@netadr_t"},
-    {title = "Mastodon", href = "https://infosec.exchange/@netadr_t"},
     {title = "Discord", href = "https://discord.com/users/307997003969855488"}
+    {title = "LinkedIn", href = "https://www.linkedin.com/in/clayton-gilmer/"}
 ]
