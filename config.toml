@@ -10,7 +10,7 @@ highlight_code = true
 
 [extra]
 links = [
+    {title = "Bluesky", href = "https://bsky.app/profile/straitbizarre.com"},
     {title = "GitHub", href = "https://github.com/netadr"},
-    {title = "Discord", href = "https://discord.com/users/307997003969855488"},
-    {title = "LinkedIn", href = "https://www.linkedin.com/in/clayton-gilmer/"}
+    {title = "Discord", href = "https://discord.com/users/307997003969855488"}
 ]
