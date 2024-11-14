@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An overview of a historical boutique malware framework">
+    <title>clayton&#x27;s site | About the &quot;SBZ&quot; implant...</title>
+    
+    <link rel="stylesheet" href="https://netadr.github.io/style.css?h=ba4e332b4e56aa7e4f4a">
+    
+    
+    
+    
+</head>
+<body>
+    
+<header class="space">
+    <a href="https:&#x2F;&#x2F;netadr.github.io">&LeftArrow; Home</a>
+</header>
+
+    
+<main>
+    <h1>About the &quot;SBZ&quot; implant...</h1>
+    
+    <p class="secondary small">
+        2 April, 2023
+
+        
+        
+        
+
+        
+    </p>
+    
+    <div class="space"></div>
+    <style>
+table, td, th {
+    border: 1px solid;
+    border-collapse: collapse;
+}
+
+td, th {
+  padding: 10px;
+}
+</style>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#introduction">Introduction</a></li>
+<li><a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#core">Core</a><br />
+2.1. <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#logging">Logging</a><br />
+2.2. <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#apis">APIs</a><br />
+2.3. <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#module-management">Module Management</a></li>
+<li><a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#virtual-filesystem">Virtual Filesystem</a><br />
+3.1. <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#dynamic-modules">Dynamic Modules</a><br />
+3.1.1. <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#elf-loader">ELF loader</a><br />
+3.2. <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#data-objects">Data Objects</a></li>
+<li><a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#command-and-control">Command and Control</a></li>
+<li><a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#conclusion">Conclusion</a></li>
+<li><a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#appendix">Appendix</a><br />
+6.1 <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#binary-hashes">Binary hashes</a><br />
+6.2 <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#network-indicators">Network indicators</a><br />
+6.3 <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#yara-rules">YARA rules</a><br />
+6.4 <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#links">Links</a></li>
+</ol>
+<h2 id="introduction">Introduction</h2>
+<p>During late summer 2022, I was made aware of a sophisticated implant sample that had been uploaded to VirusTotal.</p>
+<p>The implant <sup class="footnote-reference"><a href="#1">1</a></sup> is an ELF binary compiled for the Solaris operating system on the 32 bit SPARC architecture.</p>
+<p>No development time frame is immediately evident from the binary, but ELF comments indicate that parts of it were compiled using GCC 4.5.1, 4.1.2, and 3.4.4. </p>
+<p>An ELF comment also indicates a target operating system version: “&quot;@(#)SunOS 5.8 Generic February 2000.”</p>
+<h2 id="core">Core</h2>
+<p>The main binary (“core”) contains a complex framework, which provides logging capabilities, an API registry,<br />
+module management, and encrypted virtual file system access capabilities. </p>
+<p>In addition, functions that wrap certain operating system details such as memory management, threading, and synchronization primitives are also present. </p>
+<h3 id="logging">Logging</h3>
+<p>The core as well as the modules log many steps of their own operation. </p>
+<p>Log message format strings are stored in obfuscated form within the binaries and are deobfuscated by a custom algorithm before the relevant message is logged:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">FUN_0002a1a8</span><span>(</span><span style="color:#b48ead;">int </span><span style="color:#bf616a;">key</span><span>,</span><span style="color:#b48ead;">char </span><span>*</span><span style="color:#bf616a;">buf</span><span>,</span><span style="color:#b48ead;">char </span><span>*</span><span style="color:#bf616a;">param_3</span><span>,</span><span style="color:#b48ead;">int </span><span style="color:#bf616a;">length</span><span>)
+</span><span>{
+</span><span>    </span><span style="color:#b48ead;">int</span><span> iVar1;
+</span><span>    </span><span style="color:#b48ead;">char</span><span> current;
+</span><span> 
+</span><span>    iVar1 = </span><span style="color:#d08770;">0</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(length != </span><span style="color:#d08770;">0</span><span>) {
+</span><span>	    current = *param_3;
+</span><span>        </span><span style="color:#b48ead;">while</span><span>( </span><span style="color:#d08770;">true </span><span>) {
+</span><span>            current = .</span><span style="color:#bf616a;">umul</span><span>(current,key);
+</span><span>            buf[iVar1] = current;
+</span><span>            iVar1 = iVar1 + </span><span style="color:#d08770;">1</span><span>;
+</span><span>            </span><span style="color:#b48ead;">if </span><span>(iVar1 == length) </span><span style="color:#b48ead;">break</span><span>;
+</span><span>            current = param_3[iVar1];
+</span><span>        }
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return</span><span> key;
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">char</span><span>* log_message_decrypt.</span><span style="color:#bf616a;">fd1f1670</span><span>(</span><span style="color:#b48ead;">char </span><span>*out,</span><span style="color:#b48ead;">char </span><span>*enc,</span><span style="color:#b48ead;">int</span><span> length)
+</span><span>{
+</span><span>    uint counter;
+</span><span>    uint xv;
+</span><span>    uint current;
+</span><span>    uint previous;
+</span><span> 
+</span><span>    </span><span style="color:#b48ead;">if </span><span>((</span><span style="color:#d08770;">0 </span><span>&lt; length) &amp;&amp; (*enc != &#39;</span><span style="color:#96b5b4;">\0</span><span>&#39;)) {
+</span><span>        </span><span style="color:#b48ead;">for </span><span>(counter = </span><span style="color:#d08770;">1</span><span>; (current = counter, (</span><span style="color:#b48ead;">int</span><span>)counter &lt; length &amp;&amp; (enc[counter] != &#39;</span><span style="color:#96b5b4;">\0</span><span>&#39;));
+</span><span>            counter = counter + </span><span style="color:#d08770;">1</span><span>) {
+</span><span>        }
+</span><span>        </span><span style="color:#b48ead;">while </span><span>(previous = current, counter != </span><span style="color:#d08770;">0</span><span>) {
+</span><span>            counter = counter - </span><span style="color:#d08770;">1</span><span>;
+</span><span>            current = (uint)(byte)enc[counter];
+</span><span>            xv = previous ^ current;
+</span><span>            out[counter] = (</span><span style="color:#b48ead;">char</span><span>)xv;
+</span><span>            </span><span style="color:#b48ead;">if </span><span>((xv &amp; </span><span style="color:#d08770;">0xff</span><span>) == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>                    out[counter] = (</span><span style="color:#b48ead;">char</span><span>)previous;
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>    
+</span><span>    </span><span style="color:#bf616a;">FUN_0002a1a8</span><span>(</span><span style="color:#d08770;">0x8b</span><span>,out,out,length);
+</span><span>    </span><span style="color:#b48ead;">return</span><span> out;
+</span><span>}
+</span></code></pre>
+<p>Some of the first messages logged during the core’s execution include the current architecture and operating system,
+as well as the core’s version information:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#65737e;">/* M[Host architecture: Sparc] */
+</span><span>log</span><span style="color:#d08770;">.90163</span><span style="background-color:#bf616a;color:#2b303b;">d70</span><span>(</span><span style="color:#d08770;">0x5966aefb</span><span>,</span><span style="color:#d08770;">0x80</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_00060350);
+</span><span>
+</span><span style="color:#b48ead;">if </span><span>(param_1[</span><span style="color:#d08770;">4</span><span>] != </span><span style="color:#d08770;">0</span><span>) {
+</span><span>    </span><span style="color:#65737e;">/* M[Host OS: Solaris %d-bit, %d.%d] */
+</span><span>    log</span><span style="color:#d08770;">.90163</span><span style="background-color:#bf616a;color:#2b303b;">d70</span><span>(</span><span style="color:#d08770;">0x5966aefb</span><span>,</span><span style="color:#d08770;">0x80</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_00060370,param_1[</span><span style="color:#d08770;">4</span><span>],param_1[</span><span style="color:#d08770;">2</span><span>],param_1[</span><span style="color:#d08770;">3</span><span>]);
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">/* M[Host OS: Solaris %d.%d] */
+</span><span>log</span><span style="color:#d08770;">.90163</span><span style="background-color:#bf616a;color:#2b303b;">d70</span><span>(</span><span style="color:#d08770;">0x5966aefb</span><span>,</span><span style="color:#d08770;">0x80</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_00060398,param_1[</span><span style="color:#d08770;">2</span><span>],param_1[</span><span style="color:#d08770;">3</span><span>]);
+</span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span>;
+</span><span>
+</span><span>...
+</span><span>
+</span><span style="color:#65737e;">/* M[Sbz %d.%d.%d.%d (Lla %d.%d)] */
+</span><span>log</span><span style="color:#d08770;">.90163</span><span style="background-color:#bf616a;color:#2b303b;">d70</span><span>(</span><span style="color:#d08770;">0x5966aefb</span><span>,</span><span style="color:#d08770;">0x80</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_0005fea0,</span><span style="color:#d08770;">2</span><span>,</span><span style="color:#d08770;">6</span><span>,</span><span style="color:#d08770;">1</span><span>,</span><span style="color:#d08770;">0</span><span>,</span><span style="color:#d08770;">4</span><span>,</span><span style="color:#d08770;">2</span><span>);
+</span></code></pre>
+<p>A message logged early on by the core indicates a name along with the version information: “<strong>Sbz 2.6.1.0 (Lla 4.2)</strong>.”</p>
+<h3 id="apis">APIs</h3>
+<p>When designing complex software with several components and interwoven dependencies, a problem arises of how dependencies between
+different components can be managed.</p>
+<p>The solution this sample's developers thought of is something I'm referring to as the API registry.</p>
+<p>The API registry allows for the registration of function tables of a defined layout where the layout of the function table is determined by an API ID.</p>
+<p>In some cases, multiple distinct function tables <em>with a shared layout</em> are registered with the same API ID. </p>
+<p>A second ID that identifies the specific implementation of an API is also used when registering the function tables,
+which allows for different implementations of the same API to be registered.</p>
+<p>An API implementation is defined by a structure set up like so:</p>
+<p><img src="https://netadr.github.io/blog/a-quick-glimpse-sbz/api-descriptor.png" alt="Example of an API implementation structure" /></p>
+<p>The <code>api_id</code> field is a 32-bit integer identifying the function table layout implemented by this API implementation, 
+while the <code>impl_id</code> field identifies the particular implementation. </p>
+<p><code>func_table</code> points to a function table exposed by this API implementation. </p>
+<p>This mechanism provides an large degree of flexibility to the developers, as the underlying functions behind the API implementation's function table can be swapped out completely, but as long as the function table layout and the API ID stay the same, consumers of the API don't have to change accordingly.</p>
+<p>Shown below is a list of different API implementations registered by the core:</p>
+<table><thead><tr><th>Description</th><th>API ID</th><th>Implementation ID</th></tr></thead><tbody>
+<tr><td>Core</td><td>5C16FA2</td><td>5030001</td></tr>
+<tr><td>ELF module loader</td><td>1C10003</td><td>1012002</td></tr>
+<tr><td>VFS access (in-memory)</td><td>2C16FA1</td><td>1080003</td></tr>
+<tr><td>VFS access (on-disk)</td><td>2C16FA1</td><td>1010002</td></tr>
+<tr><td>Cryptography (AES)</td><td>1C16F7F</td><td>1010001</td></tr>
+<tr><td>Cryptography (XOR-based cipher)</td><td>1C16F7F</td><td>101F023</td></tr>
+<tr><td>Cryptography (No-op)</td><td>1C16F7F</td><td>101F001</td></tr>
+<tr><td>Hashing (CRC32)</td><td>1C16F80</td><td>1010001</td></tr>
+<tr><td>Hashing (MD5)</td><td>1C16F80</td><td>1010002</td></tr>
+<tr><td>MD5 wrapper</td><td>1C16F81</td><td>1010001</td></tr>
+<tr><td>Random number generation</td><td>1C16F82</td><td>1010001</td></tr>
+</tbody></table>
+<p>Performing API-related operations is done by calling into a function table provided by a core framework that includes the API registry.</p>
+<p>Some methods that this function table provides include methods to register/deregister API implementations, acquire/release API function tables, and get API registry version information.</p>
+<h2 id="module-management">Module Management</h2>
+<p>The main organizational unit between different components of this sample is that of modules.</p>
+<p>Modules are described by a structure with the following layout:</p>
+<p><img src="https://netadr.github.io/blog/a-quick-glimpse-sbz/module-descriptor.png" alt="Example of a module structure" /></p>
+<p>In all observed cases, the first four bytes have been <code>0x02 0x02 0x00 0x00</code>.</p>
+<p>The <code>framework_id</code> field is a 32-bit integer value that has always been observed to be <code>1C10007</code>.</p>
+<p><code>init</code>/<code>fini</code> are module initialization and deinitialization routines, respectively.</p>
+<p>Shown below are examples of a module's initialization and deinitialization functions:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">crypto_aes_module_init</span><span>(FrameworkApi *</span><span style="color:#bf616a;">param_1</span><span>,undefined4 </span><span style="color:#bf616a;">param_2</span><span>)
+</span><span>{
+</span><span>    uint uVar1;
+</span><span>    uint uVar2;
+</span><span>    </span><span style="color:#b48ead;">int</span><span> iVar3;
+</span><span> 
+</span><span>    uVar2 = crypto_aes_module_state + </span><span style="color:#d08770;">1</span><span>;
+</span><span>    </span><span style="color:#b48ead;">while</span><span>( </span><span style="color:#d08770;">true </span><span>) {
+</span><span>        uVar1 = uVar2;
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(</span><span style="color:#d08770;">1 </span><span>&lt; uVar1) {
+</span><span>            </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span>;
+</span><span>        }
+</span><span>
+</span><span>        iVar3 = </span><span style="color:#d08770;">0</span><span>;
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(uVar1 == </span><span style="color:#d08770;">1</span><span>) {
+</span><span>            iVar3 = (*(code *)param_1-&gt;register_api)
+</span><span>                            (param_2,&amp;crypto_aes_api,&amp;crypto_aes_api_registration_handle);
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(iVar3 != </span><span style="color:#d08770;">0</span><span>) </span><span style="color:#b48ead;">break</span><span>;
+</span><span>
+</span><span>        uVar2 = uVar1 + </span><span style="color:#d08770;">1</span><span>;
+</span><span>        crypto_aes_module_state = uVar1;
+</span><span>    }
+</span><span>    </span><span style="color:#b48ead;">return</span><span> iVar3;
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">crypto_aes_module_fini</span><span>(FrameworkApi *</span><span style="color:#bf616a;">param_1</span><span>)
+</span><span>{
+</span><span>    </span><span style="color:#b48ead;">int</span><span> iVar1;
+</span><span> 
+</span><span>    iVar1 = </span><span style="color:#d08770;">0</span><span>;
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(crypto_aes_module_state != </span><span style="color:#d08770;">0</span><span>) {
+</span><span>        </span><span style="color:#b48ead;">do </span><span>{
+</span><span>        iVar1 = </span><span style="color:#d08770;">0</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(crypto_aes_module_state == </span><span style="color:#d08770;">1</span><span>) {
+</span><span>            iVar1 = (*(code *)param_1-&gt;deregister_api)(&amp;crypto_aes_api_registration_handle);
+</span><span>        }
+</span><span>        } </span><span style="color:#b48ead;">while </span><span>((iVar1 == </span><span style="color:#d08770;">0</span><span>) &amp;&amp;
+</span><span>                (crypto_aes_module_state = crypto_aes_module_state + -</span><span style="color:#d08770;">1</span><span>, crypto_aes_module_state != </span><span style="color:#d08770;">0</span><span>));
+</span><span>    }
+</span><span>    </span><span style="color:#b48ead;">return</span><span> iVar1;
+</span><span>}
+</span></code></pre>
+<p>In both cases, the first parameter is a pointer to a core framework function table as described in the <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#apis">API</a> section.</p>
+<p>Within the initialization routines, modules typically register one or more API implementations<br />
+corresponding to functionality provided by the given module.</p>
+<p>The deinitialization routine is called whenever a module is unloaded, in which case API<br />
+implementations previously registered by the module are deregistered.</p>
+<p>Some modules are present and explicitly loaded within the core binary.</p>
+<p>However, the real purpose of this system is to enable dynamic loading of functionality during implant runtime.</p>
+<h3 id="elf-loader">ELF loader</h3>
+<p>To enable this, the core binary makes use of a custom ELF loader library:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span>uVar7 = </span><span style="color:#bf616a;">load</span><span>(&amp;local_18,local_14,</span><span style="color:#bf616a;">sStack_2a8</span><span>.</span><span style="color:#bf616a;">st_blksize</span><span>,</span><span style="color:#d08770;">0</span><span>);
+</span><span>  </span><span style="color:#b48ead;">if </span><span>(uVar7 != </span><span style="color:#d08770;">0</span><span>) {
+</span><span>    </span><span style="color:#65737e;">/* M[doLoaderLoad: load() failed, %08x] */
+</span><span>	sbz_log</span><span style="color:#d08770;">.90163</span><span style="background-color:#bf616a;color:#2b303b;">d70</span><span>(</span><span style="color:#d08770;">0x4c2d642d</span><span>,</span><span style="color:#d08770;">0xa0</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_0005eec8,uVar7);
+</span><span>	system_memzero_and_free</span><span style="color:#d08770;">.44611</span><span style="background-color:#bf616a;color:#2b303b;">a64</span><span>(local_14);
+</span><span>	puVar2-&gt;loader_return = </span><span style="color:#d08770;">2</span><span>;
+</span><span>	puVar2-&gt;error = uVar7;
+</span><span>	puVar2-&gt;loader_state = </span><span style="color:#d08770;">0x12</span><span>;
+</span><span>	</span><span style="color:#b48ead;">return </span><span style="color:#d08770;">2</span><span>;
+</span><span>  }
+</span><span>  uVar7 = </span><span style="color:#bf616a;">link</span><span>(local_18,DAT_00077914,&amp;PTR_PTR_FUN_00074334);
+</span><span>  </span><span style="color:#b48ead;">if </span><span>(uVar7 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>	uVar7 = </span><span style="color:#bf616a;">map</span><span>(local_18,&amp;PTR_PTR_FUN_0007433c);
+</span><span>	    </span><span style="color:#b48ead;">if </span><span>(uVar7 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>  	        uVar7 = </span><span style="color:#bf616a;">lookup</span><span>(local_18,&amp;local_1c,&quot;</span><span style="color:#a3be8c;">ofn</span><span>&quot;,</span><span style="color:#d08770;">0</span><span>,</span><span style="color:#d08770;">0</span><span>);
+</span><span>  	            </span><span style="color:#b48ead;">if </span><span>(uVar7 == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>    	                uVar8 = *(undefined4 *)(local_1c + </span><span style="color:#d08770;">0x14</span><span>);
+</span><span>                	    </span><span style="color:#65737e;">/* M[dLL: ep 0x%08x/%p] */
+</span><span>    	                sbz_log</span><span style="color:#d08770;">.90163</span><span style="background-color:#bf616a;color:#2b303b;">d70</span><span>(</span><span style="color:#d08770;">0x4c2d642d</span><span>,</span><span style="color:#d08770;">0x80</span><span>,</span><span style="color:#d08770;">0</span><span>,&amp;DAT_0005ef70,param_1,uVar8);
+</span><span>  	            }
+</span></code></pre>
+<p>Instead of using built-in OS mechanisms for loading an ELF binary, the loader is entirely custom.</p>
+<p>This technique is reminiscent of similar techniques on Windows, e.g. &quot;manual mapping&quot; or &quot;reflective loading.&quot;</p>
+<p>After mapping an ELF in memory, the module loader code looks up a named symbol exported from the mapped ELF named <code>ofn</code>.</p>
+<p><code>ofn</code> functions are expected to return a pointer to a static module struct as described above.</p>
+<p>Interestingly, some checks are present within the ELF loader library code for Mach-O magic numbers:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#b48ead;">if </span><span>(((uVar1 != </span><span style="color:#d08770;">0xcefaedfe</span><span>) &amp;&amp; (uVar1 != </span><span style="color:#d08770;">0xfeedface</span><span>)) &amp;&amp;
+</span><span> 	((uVar1 != </span><span style="color:#d08770;">0xcffaedfe </span><span>&amp;&amp;
+</span><span>  	(((uVar1 != </span><span style="color:#d08770;">0xfeedfacf </span><span>&amp;&amp; (uVar1 != </span><span style="color:#d08770;">0xbebafeca</span><span>)) &amp;&amp; (uVar1 != </span><span style="color:#d08770;">0xcafebabe</span><span>)))))) {
+</span><span>	</span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0xd000000c</span><span>;
+</span><span>}
+</span></code></pre>
+<p>This implies that a version of the loader may have existed for Apple platforms.</p>
+<h2 id="virtual-filesystem">Virtual Filesystem</h2>
+<p>One API implementation present in the core allows for consumers to access an on-disk virtual filesystem. </p>
+<p>Each virtual file (“object”) is represented on disk by an encrypted container file, 
+and objects are typically referenced in code by three 32-bit identifiers. </p>
+<p>Several configuration items are present that can be used to control behaviors exhibited by the virtual filesystem:</p>
+<table><thead><tr><th>Configuration item</th><th>Default value</th><th>Description</th></tr></thead><tbody>
+<tr><td>objDir</td><td>“.”</td><td>Directory used to store container files.</td></tr>
+<tr><td>maxSize</td><td>0x6400000</td><td>Max combined size of virtual file objects.</td></tr>
+<tr><td>maxUsePct</td><td>75</td><td>Max usage percent of virtual filesystem.</td></tr>
+<tr><td>fileTmpl</td><td>“%k1[]x-%k2[]x-%k3[]x.bak%v[]d”</td><td>Template used to generate the on-disk filename of encrypted container files.</td></tr>
+<tr><td>xorValue</td><td>0</td><td>Used as a seed when generating file names from fileTmpl.</td></tr>
+<tr><td>cleanOnFini</td><td>FALSE</td><td>Unlink container files from disk when shutting down the core.</td></tr>
+<tr><td>isD</td><td>FALSE</td><td>Don’t allow writes to container files, unlink any currently open container files when closed.</td></tr>
+<tr><td>encPvid</td><td>0xF023</td><td>Lower part of ID for the cryptography API implementation used to encrypt virtual file object data.</td></tr>
+</tbody></table>
+<p>The listed default values are hardcoded into the core binary.</p>
+<p>When the core starts for the first time on an infected system, it decompresses several serialized blobs from a compressed storage container appended to the end of the core binary. </p>
+<p>Following decompression, the core deserializes these blobs and writes the contained items to the virtual filesystem:</p>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span>status = framework_deserialize_u32</span><span style="color:#d08770;">.254</span><span style="background-color:#bf616a;color:#2b303b;">c2227</span><span>(deserializer,&amp;count);
+</span><span style="color:#b48ead;">if </span><span>((count != </span><span style="color:#d08770;">0</span><span>) &amp;&amp; (status == </span><span style="color:#d08770;">0</span><span>)) {
+</span><span>    </span><span style="color:#b48ead;">while</span><span>( </span><span style="color:#d08770;">true </span><span>) {
+</span><span>        object_len = </span><span style="color:#d08770;">0</span><span>;
+</span><span>        object = (</span><span style="color:#b48ead;">void </span><span>*)</span><span style="color:#d08770;">0x0</span><span>;
+</span><span>
+</span><span>        status = framework_deserialize.</span><span style="color:#bf616a;">e3aee120
+</span><span>                    (deserializer,&amp;serialized_module_map,&amp;id_1,&amp;id_2,&amp;id_3,&amp;object,&amp;object_len);
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(status != </span><span style="color:#d08770;">0</span><span>) </span><span style="color:#b48ead;">break</span><span>;
+</span><span>
+</span><span>        object_handle = (*(code *)vfs_func_table-&gt;open)(id_1,id_2,id_3);
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(object_handle == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>            system_memzero_and_free</span><span style="color:#d08770;">.44611</span><span style="background-color:#bf616a;color:#2b303b;">a64</span><span>(object);
+</span><span>            </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0xf0000002</span><span>;
+</span><span>        }
+</span><span>
+</span><span>        status = (*(code *)vfs_func_table-&gt;write)(object_handle,object,object_len);
+</span><span>        (*(code *)vfs_func_table-&gt;close)(object_handle);
+</span><span>
+</span><span>        system_memzero_and_free</span><span style="color:#d08770;">.44611</span><span style="background-color:#bf616a;color:#2b303b;">a64</span><span>(object);
+</span><span>        count = count + -</span><span style="color:#d08770;">1</span><span>;
+</span><span>        
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(count == </span><span style="color:#d08770;">0</span><span>) {
+</span><span>            </span><span style="color:#b48ead;">return</span><span> status;
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(status != </span><span style="color:#d08770;">0</span><span>) {
+</span><span>            </span><span style="color:#b48ead;">return</span><span> status;
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span><span style="color:#b48ead;">return</span><span> status;
+</span></code></pre>
+<p>Items initially written to the virtual filesystem include dynamic ELF modules and configuration data.</p>
+<h3 id="dynamic-modules">Dynamic Modules</h3>
+<p>Among items initially written to the virtual filesystem, 34 of them are additional ELF modules.</p>
+<p>Given the sheer number of modules and complexity of certain modules, not all functionality has been completely reversed. </p>
+<p>As such, this table provides a brief and non-exhaustive summary of each module’s functionality:</p>
+<table><thead><tr><th>Module ID</th><th>Description</th></tr></thead><tbody>
+<tr><td>21AB</td><td>Provides code execution capabilities, including:<br><br>- Load ELF in memory using its own statically linked copy of the <a href="https://netadr.github.io/blog/a-quick-glimpse-sbz/#elf-loader">custom ELF loader</a> library and invoke a symbol by name<br>- Execute an arbitrary shell command using <code>/bin/sh   </code></td></tr>
+<tr><td>2345</td><td>File exfiltration tasking system.<br><br>Tasks can be added with a watch directory, a regular expression matching on filenames of interest, and various other configurable parameters. Periodically, tasks are iterated over to find new files of interest.<br><br>Uses a statically linked copy of the Apache Portable Runtime open source library for filesystem and IO operations.</td></tr>
+<tr><td>234A</td><td>System survey capabilities, including:<br><br>- Gather hostname<br>- Operating system version, release name, bitness<br>- uname string<br>- Current uptime<br>- RAM and swap information<br>- CPU clock speed, core count, type, FPU type, state<br>- Load average over last minute, 5 minutes, 15 minutes<br>- Host ID<br>- UTC, offset time<br>- Process listing with usage, status, UID<br>- List of all mounted partitions, their sizes, free space, volume serial numbers<br>- Environment variables<br>- Installed packages, name, version, install date</td></tr>
+<tr><td>24EE</td><td>Provides network survey functionality:<br><br>- Get network interface information<br>- Interface throughput (bits per second)<br>- Link status<br>- Received bytes/queued to be sent bytes<br>- Received packets/queued to be sent packets<br>- Packets sent/received that contained errors<br>- Number of times overflow occurred during receive<br>- Ethernet collision count<br>- Carrier lost count<br>- IPv4/IPv6 address<br>- Information about all active TCP/IP sockets, UNIX domain sockets<br>- ARP cache<br>- Unused functionality for responding to ARP requests<br><br>Statically linked to the libnet and libpcap open source libraries.</td></tr>
+<tr><td>2776</td><td>Timer object utility.</td></tr>
+<tr><td>2777</td><td>Serializes and queues up special status messages to be exfiltrated.<br><br>The messages include the follow information:<br><br>- Core version<br>- Core compiled architecture/OS<br>- Core string identifier<br>- UUID specific to this sample<br>- Local interface IP addresses<br>- Other internal networking/session/channel state data<br><br>During module init, a timer object is created such that the messages are generated and queued up to be exfiltrated on a configured interval.</td></tr>
+<tr><td>277D</td><td>Utilities wrapping module 277E.</td></tr>
+<tr><td>277E</td><td>Provides utilities to dynamically call into API implementations with a context struct identifying the caller and a user-provided serialized argument buffer.</td></tr>
+<tr><td>277F</td><td>Thread utilities.</td></tr>
+<tr><td>2780</td><td>Parses communications channel configuration data, calls API implementations from module 2792.</td></tr>
+<tr><td>2782</td><td>Utilities wrapping module 277E.</td></tr>
+<tr><td>2786</td><td>“inbox” communications channel. Only provides implementation for receiving messages.</td></tr>
+<tr><td>2787</td><td>“outbox” communications channel. Only provides implementation for sending messages.</td></tr>
+<tr><td>278A</td><td>Provides a large amount of internal networking utilities.</td></tr>
+<tr><td>278F</td><td>HTTP client communications channel, both sending and receiving messages is supported.</td></tr>
+<tr><td>2790</td><td>HTTP server communications channel, both sending and receiving messages is supported.</td></tr>
+<tr><td>2792</td><td>Provides utilities for acquiring communications channel API implementations and interacting with them.</td></tr>
+<tr><td>2795</td><td>Registers API implementation used by communications channels.</td></tr>
+<tr><td>2797</td><td>Ring buffer utility</td></tr>
+<tr><td>2799</td><td>Cryptography API implementation (unknown cipher)</td></tr>
+<tr><td>279A</td><td>Provides remote core management functionality.</td></tr>
+<tr><td>279B</td><td>Provides remote virtual file system management functionality.</td></tr>
+<tr><td>279C</td><td>Manages communication channel connections.</td></tr>
+<tr><td>279D</td><td>Provides additional remote core management functionality, including:<br><br>- Restart core<br>- Shutdown core<br>- Get core version, identifier<br>- Get core compiled OS/architecture<br>- Upgrade core</td></tr>
+<tr><td>279E</td><td>Registers custom callback for internal logging system. Continuously queues up global log buffer to be exfiltrated.</td></tr>
+<tr><td>279F</td><td>Provides remote ELF module management functionality (add new module, upgrade existing module, etc.)</td></tr>
+<tr><td>27A0</td><td>Provides utilities for queueing up data to be exfiltrated.</td></tr>
+<tr><td>27A5</td><td>Provides API implementation for getting/setting/generating a new 16 byte value that uniquely identifies a sample.</td></tr>
+<tr><td>27A6</td><td>API implementation wrapper for zlib open source library.</td></tr>
+<tr><td>27D9</td><td>Provides functionality for listening on a socket for an inbound connection or establishing an outbound connection on the local network. All packets are forwarded over an established communications channel.</td></tr>
+<tr><td>27DA</td><td>Utilities wrapping module 277E.</td></tr>
+<tr><td>27DB</td><td>Utilities wrapping module 277E.</td></tr>
+<tr><td>27FA</td><td>API implementation wrapper for Perl-Compatible Regular Expression open source library.</td></tr>
+<tr><td>2811</td><td>File system utilities.<br><br>Provides, among other unknown functionality:<br><br>- Get file hash<br>- Write file contents<br>- Read file contents<br>- Rename/move files<br>- Change file permission bits<br>- Get directory/file listing<br><br>Uses a statically linked copy of the Apache Portable Runtime open source library for filesystem and IO operations.</td></tr>
+</tbody></table>
+<h3 id="data-objects">Data Objects</h3>
+<p>Here is a list of all configuration data initially written to the virtual file system:</p>
+<table><thead><tr><th>Data ID</th><th>Description</th></tr></thead><tbody>
+<tr><td>01816F8F_00000001_00000000</td><td>Communications link provider configuration data parsed by module 2780.</td></tr>
+<tr><td>01816F92_00000001_00000000</td><td>Configuration data.</td></tr>
+<tr><td>01816F92_FF000001_00000000</td><td>Configuration data read by module 2780.</td></tr>
+<tr><td>01816FA2_00030001_00000002</td><td>Batch of module identifiers identifying modules to load.</td></tr>
+<tr><td>01816FA2_00030001_00000003</td><td>Batch of module identifiers identifying modules to load.</td></tr>
+<tr><td>01816FA2_00030001_00000004</td><td>Empty list of module identifiers.</td></tr>
+<tr><td>01816FA2_00030001_00000005</td><td>Batch of module identifiers identifying modules to load.</td></tr>
+<tr><td>01816FB5_01010001_00000001</td><td>Configuration data for module 279E.</td></tr>
+<tr><td>0181703D_00010001_00000001</td><td>Configuration data for module 2777.</td></tr>
+<tr><td>01C16F96_03010001_00000003</td><td>Configuration data for module 279D.</td></tr>
+<tr><td>01C16F9D_01010001_00000001</td><td>16 byte UUID - read by module 27A5.</td></tr>
+<tr><td>01C16FA2_B0071234_00000001</td><td>Core configuration data.</td></tr>
+<tr><td>02C16F98_FEEDBEEF_00000000</td><td>Configuration data for module 27A0.</td></tr>
+</tbody></table>
+<h2 id="command-and-control">Command and Control</h2>
+<p>This sample incorporates a very complex and flexible command and control system. </p>
+<p>Modules that provide mechanisms to send exfiltrated data or receive commands can register implementations of the “channel API” (1C16F8D),<br />
+providing a unified interface to communicate with other implants or a listening post.</p>
+<p>Contained in virtual file object <code>01816F8F_00000001_00000000</code> is a listing of various communications channels that the implant is configured to use:</p>
+<table><thead><tr><th>“Hostname”</th><th>Port</th><th>Cryptography API implementation</th><th>Channel API implementation</th><th>Module</th><th>Send/receive</th></tr></thead><tbody>
+<tr><td>./outbox</td><td>N/A</td><td>101F001</td><td>101001B</td><td>2787</td><td>Send</td></tr>
+<tr><td>./inbox</td><td>N/A</td><td>101F001</td><td>101001C</td><td>2786</td><td>Receive</td></tr>
+<tr><td>182.162.80.21</td><td>49282</td><td>101F023</td><td>101F559</td><td>278F</td><td>Send</td></tr>
+<tr><td>219.111.208.59</td><td>42892</td><td>101F023</td><td>101F559</td><td>278F</td><td>Send</td></tr>
+<tr><td>182.162.80.21</td><td>49282</td><td>101F023</td><td>101F55B</td><td>278F</td><td>Receive</td></tr>
+<tr><td>219.111.208.59</td><td>42892</td><td>101F023</td><td>101F55B</td><td>278F</td><td>Receive</td></tr>
+<tr><td>0.0.0.0</td><td>33465</td><td>101F023</td><td>101F55A</td><td>2790</td><td>Send</td></tr>
+<tr><td>0.0.0.0</td><td>33465</td><td>101F023</td><td>101F55C</td><td>2790</td><td>Receive</td></tr>
+</tbody></table>
+<p>This table can be interpreted like so:</p>
+<ul>
+<li>Save exfil data to files within a directory called “outbox” in the current working directory of the implant.</li>
+<li>Read commands from files within a directory called “inbox” in the current working directory of the implant.</li>
+<li>Establish a connection over HTTP with 182.162.80.21:49282.</li>
+<li>Establish a connection over HTTP with 219.111.208.59:42892.</li>
+<li>Listen for an incoming HTTP connection on port 33465.</li>
+</ul>
+<p>The inbox/outbox channels use the cryptography API with implementation ID <code>101F001</code>, which is a &quot;no-op&quot; cipher.</p>
+<p>As such, data is simply copied without being encrypted/decrypted. </p>
+<p>All configured HTTP channels use <code>101F023</code>, which is a XOR-based cipher which I have been unable to identify.</p>
+<p>The &quot;Module&quot; column of the table identifies which dynamic module registers the channel API implementation in use by a given channel.</p>
+<p>Of particular interest are the &quot;inbox&quot; and &quot;outbox&quot; communications channels.</p>
+<p>For either of those channels to be active, the corresponding directory must exist in the working directory of the implant, 
+and the directories are not created by default. </p>
+<p>It's my belief that those directories could be created in special cases where external tools are used to tunnel communications to/from the implant.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Studying the tools used by the best of the best in the APT world is a highly enriching experience.</p>
+<p>It left me with an appreciation for the effort that went into writing these components, and left me wondering what today's &quot;apex threat actors&quot;'s implants might look like.</p>
+<h2 id="appendix">Appendix</h2>
+<h3 id="binary-hashes">Binary hashes</h3>
+<p>2FE44C9336D4CD84E9936A0EC68FAEF1<br />
+95C1813B46DFE97AFC36556B421AC662<br />
+3120BA7C20DE0740B9F3343D7341D624<br />
+A09C662AF64B554BDA5415B8EEAD96E4<br />
+D163F3C124FA736555A8548CEF3FCDB2<br />
+C0877B1ADBE401BA0E8F8073B1FB8572<br />
+390AE9BB00299116DA7D94EC6FB43D34<br />
+6DE9174B77E885EF21113A5B6EEB48A7<br />
+2E72DCFB71C060BA377A2C9327E07520<br />
+999C092E1194FA8C10CDDDAF331DEB85<br />
+77242A9F99D815B0CA876A2204AF59E7<br />
+3C5D4AFEE719B023A2477DF878521176<br />
+3BC3B0B750E1F0F8FE9D085D7CC71D5B<br />
+906C916AF1B24A05E9700D39C8DA128B<br />
+A85EAAA17766E7FFB000727AFD10FF6C<br />
+1F20C3543C782547FAC31B66B04267DC<br />
+52E5AA0EA655C0882FFB022156A6411F<br />
+F83EF6EFE1556C980DC9A009400CA223<br />
+77DB36C28DF50E31A413CD6D3864F7AE<br />
+1D6E98AA4DB3B81319796E690EB512EB<br />
+851F8F2A6BBCB77CFF04F5B4CAA5F91E<br />
+40E5A4B3B4C8B5FC3A6DF11D15E58AC5<br />
+0C155FE137058F685F64F2FBE781B80D<br />
+D3CFF4B643CD8FA1B689C475FC6CF8C3<br />
+F73CB4DB1B1640A7D7C4A060DC7FC96A<br />
+D41C2C0AC1276CE3E434AB36A8A09E01<br />
+48EDF51BAAEA9DE325F70049779F4DEC<br />
+06C08F746CB4637620DD381AB5B2215B<br />
+C63E9E04917F66C268BEFAE9FE634637<br />
+58FDEEA723CF2DFB5A3CD7BF2B003444<br />
+95F845156CB82A5446695DFA30325302<br />
+A9A71D1CE681D5B6EB6327AB8D6C71B8<br />
+C9C058E9E1F68DFB1DC77B9EABF1F76A<br />
+96B58457A33DD6C62785B9498B22BFF8<br />
+F4DF56203A37706C9E224F29B960DC21</p>
+<h3 id="network-indicators">Network indicators</h3>
+<p>182.162.80.21<br />
+219.111.208.59</p>
+<h3 id="yara-rules">YARA rules</h3>
+<pre data-lang="yara" style="background-color:#2b303b;color:#c0c5ce;" class="language-yara "><code class="language-yara" data-lang="yara"><span>import &quot;elf&quot;
+</span><span>
+</span><span>rule Hunting_SBZ_Obfuscation {
+</span><span>    meta:
+</span><span>   	    author = &quot;netadr&quot;
+</span><span>   	    info = &quot;This rule is UNTESTED against a large dataset and is for hunting purposes only.&quot;
+</span><span>
+</span><span>    strings:
+</span><span>   	    // xor g3, 0x47, o5
+</span><span>   	    // xor o5, g1, o5
+</span><span>   	    // xor g2, o5, o5
+</span><span>   	    $xor_block = { 9A 18 E0 47 9A 1B 40 01 9A 18 80 0D }
+</span><span>
+</span><span>    condition:
+</span><span>   	    elf.type and
+</span><span>   	    elf.machine == elf.EM_SPARC and
+</span><span>   	    $xor_block
+</span><span>}
+</span><span>
+</span><span>rule Hunting_SBZ_UniqueStrings {
+</span><span>    meta:
+</span><span>   	    author = &quot;netadr&quot;
+</span><span>   	    info = &quot;This rule is UNTESTED against a large dataset and is for hunting purposes only.&quot;
+</span><span>
+</span><span>    strings:
+</span><span>   	    $s1 = &quot;&lt;%u&gt;[%s] Event #%u: &quot;
+</span><span>        $s2 = &quot;ofn&quot;
+</span><span>
+</span><span>        // suggested by https://twitter.com/adulau/status/1553401532514766848
+</span><span>        $s3 = &quot;diuXxobB&quot; 
+</span><span>        $s4 = &quot;CHM_FW&quot;
+</span><span>
+</span><span>    condition:
+</span><span>   	    2 of ($*)
+</span><span>}
+</span><span>
+</span><span>rule Hunting_SBZ_ModuleStruct {
+</span><span>	meta:
+</span><span>        author = &quot;netadr&quot;
+</span><span>  	    info = &quot;This rule is UNTESTED against a large dataset and is for hunting purposes only.&quot;
+</span><span>    
+</span><span>	strings:
+</span><span>  	    $be = { 02 02 00 00 01 C1 00 07 }
+</span><span>   	    $le = { 02 02 00 00 07 00 C1 01 }
+</span><span>
+</span><span>	condition:
+</span><span>        $be or $le
+</span><span>}
+</span></code></pre>
+<h3 id="links">Links</h3>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://www.virustotal.com/gui/file/5cdfbfaad93f79d42feecf08a9c7afa5363c847d3e9cb18c3d6188a757b292c6">https://www.virustotal.com/gui/file/5cdfbfaad93f79d42feecf08a9c7afa5363c847d3e9cb18c3d6188a757b292c6</a></p>
+</div>
+
+</main>
+
+    <div class="dark-mode-buttons">
+        <button class="dark-mode-button" id="dark-mode-on"><img src="https://netadr.github.io/dark_mode.svg" width="24" height="24" alt="Dark mode" aria-label="dark mode toggle" title="Dark mode"></button>
+        <button class="dark-mode-button" id="dark-mode-off"><img src="https://netadr.github.io/light_mode.svg" width="24" height="24" alt="Light mode" aria-label="light mode toggle" title="Light mode"></button>
+    </div>
+    <script>
+        const cls = document.querySelector("html").classList;
+        const sessionTheme = sessionStorage.getItem("theme");
+
+        function setDark() {
+            cls.add("dark-mode");
+            cls.remove("light-mode");
+            sessionStorage.setItem("theme", "dark");
+        }
+        function setLight() {
+            cls.add("light-mode");
+            cls.remove("dark-mode");
+            sessionStorage.setItem("theme", "light");
+        }
+
+        if (sessionTheme === "dark") {
+            setDark();
+        } else if (sessionTheme === "light") {
+            setLight();
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            setDark();
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            setDark();
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            setLight();
+        });
+    </script>
+    <noscript>
+        <style>
+            .dark-mode-buttons {
+                display: none;
+            }
+        </style>
+    </noscript>
+</body>
+</html>
